@@ -59,18 +59,43 @@ app.use(
   })
 );
 
-// Standard body parsing
+import compression from 'compression';
+
+// Standard body parsing & compression
+app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'studentbazaar_cookie_secret'));
+
+// NoSQL Injection sanitizer middleware (strips keys containing $ or .)
+app.use((req, res, next) => {
+  const sanitize = (obj) => {
+    if (!obj || typeof obj !== 'object') return obj;
+    for (const key of Object.keys(obj)) {
+      if (key.startsWith('$') || key.includes('.')) {
+        delete obj[key];
+      } else if (typeof obj[key] === 'object') {
+        sanitize(obj[key]);
+      }
+    }
+    return obj;
+  };
+  if (req.body) sanitize(req.body);
+  if (req.query) sanitize(req.query);
+  if (req.params) sanitize(req.params);
+  next();
+});
 
 // Logging in development
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Serve root static frontend assets so the whole app is runnable via this single server too!
-app.use(express.static(rootDir));
+// Serve root static frontend assets with caching header in production
+app.use(express.static(rootDir, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  etag: true
+}));
 
 // Health check endpoint
 app.get('/api/v1/health', (req, res) => {
