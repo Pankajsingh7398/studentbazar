@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Saved Wishlist — StudentBazaar</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/cart.js" defer></script>
+  <script src="../js/wishlist.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+  <header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(64,38,25,0.06)]">
+    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3">
+        <img alt="StudentBazaar Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+        <span class="font-headline-sm text-headline-sm text-primary font-serif">StudentBazaar</span>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition" href="shop.html">Shop Catalog</a>
+        <a aria-label="Cart" class="relative p-1.5 text-on-surface-variant hover:text-primary transition" data-path="cart" href="#">
+          <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
+          <span class="cart-badge absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full pt-28 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="font-headline-lg text-headline-lg text-primary font-serif tracking-tight">Saved for Later</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Archival notebooks &amp; study materials you bookmarked for this semester.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="wishlist-grid">
+      <div class="col-span-full py-16 text-center text-on-surface-variant">Loading saved items...</div>
+    </div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
+    <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
+    <span class="font-label-md text-label-md" id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    window.showToast = function(msg, icon = 'check_circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid = document.getElementById('wishlist-grid');
+      const items = await window.WishlistManager.fetchWishlist();
+
+      if (!items || items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-20 text-center text-on-surface-variant flex flex-col items-center justify-center gap-3">
+            <span class="material-symbols-outlined text-[52px] text-stone-300">favorite_border</span>
+            <p class="font-headline-sm text-headline-sm text-primary">Your wishlist is empty</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">Save notebooks you want to order before seminars or exams.</p>
+            <a href="shop.html" class="mt-2 px-5 py-2.5 bg-primary text-on-primary rounded-xl font-label-md">Explore Stationery</a>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = items.map(p => {
+        const id = p._id || p.id;
+        const mockupClass = p.mockupStyle || 'bg-[#1C3627] text-amber-200';
+        return `
+          <div class="product-card bg-surface-container-lowest rounded-xl border border-surface-container p-4 shadow-xs flex flex-col justify-between">
+            <div class="h-44 rounded-lg bg-[#FAF8F5] flex items-center justify-center p-3 relative">
+              <div class="w-28 h-36 rounded ${mockupClass} flex flex-col justify-between p-3 text-center shadow-md">
+                <span class="material-symbols-outlined text-[16px]">auto_stories</span>
+                <p class="font-headline-sm text-[12px] font-serif font-bold">${p.name}</p>
+                <span class="text-[8px] font-mono">Archival</span>
+              </div>
+            </div>
+            <div class="pt-3 space-y-2">
+              <h3 class="font-headline-sm text-headline-sm text-primary font-serif">${p.name}</h3>
+              <div class="font-currency-lg text-primary">₹${p.price}</div>
+              <div class="flex gap-2 pt-2">
+                <button class="flex-1 py-2 bg-primary text-on-primary rounded-lg text-label-md hover:bg-primary-container transition" onclick="window.CartManager.addItem({ id: '${id}', name: '${p.name}', price: ${p.price}, mockupStyle: '${mockupClass}' })">
+                  Move to Cart
+                </button>
+                <button class="px-3 py-2 border border-outline-variant rounded-lg text-error hover:bg-error-container transition" onclick="removeFromWishlistPage('${id}', '${p.name}')">
+                  <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    });
+
+    async function removeFromWishlistPage(id, name) {
+      await window.WishlistManager.toggle({ id, name });
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>

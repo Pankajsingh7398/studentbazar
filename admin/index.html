@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Admin Dashboard — StudentBazaar Logistics</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/forms.css"/>
+  <link rel="stylesheet" href="../css/admin.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/admin.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col md:flex-row">
+
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar p-6 flex flex-col justify-between">
+    <div class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary text-[28px]">shield_person</span>
+        <div>
+          <span class="font-headline-sm text-headline-sm text-primary font-serif block leading-none">StudentBazaar</span>
+          <span class="text-[10px] uppercase font-bold tracking-widest text-secondary">Campus Admin Portal</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1.5 pt-4">
+        <a class="admin-nav-item active" href="index.html">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span>Overview</span>
+        </a>
+        <a class="admin-nav-item" href="products.html">
+          <span class="material-symbols-outlined text-[20px]">menu_book</span>
+          <span>Products</span>
+        </a>
+        <a class="admin-nav-item" href="orders.html">
+          <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+          <span>Orders</span>
+        </a>
+        <a class="admin-nav-item" href="customers.html">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span>Customers</span>
+        </a>
+        <a class="admin-nav-item" href="inventory.html">
+          <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+          <span>Inventory</span>
+        </a>
+        <a class="admin-nav-item" href="../index.html">
+          <span class="material-symbols-outlined text-[20px]">storefront</span>
+          <span>Public Storefront</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="pt-6 border-t border-surface-container space-y-3">
+      <div class="text-body-sm text-on-surface-variant">
+        <span>Logged in as:</span>
+        <strong id="admin-user-name" class="block text-primary font-semibold">Store Administrator</strong>
+      </div>
+      <button id="admin-logout-btn" class="w-full py-2 bg-surface-container rounded-xl text-label-sm font-label-sm hover:bg-error hover:text-white transition flex items-center justify-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Admin Content Panel -->
+  <main class="flex-1 p-6 sm:p-10 overflow-y-auto">
+
+    <!-- Section 1: Dashboard Overview -->
+    <div id="section-dashboard" class="admin-section-pane space-y-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Logistics Overview</h1>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Real-time metrics on orders, revenue, customer scholars, and inventory.</p>
+        </div>
+        <button onclick="window.location.reload()" class="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition flex items-center gap-1.5 text-label-sm font-label-sm">
+          <span class="material-symbols-outlined text-[18px]">refresh</span>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <!-- Stat Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="stat-card">
+          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Sales</span>
+          <span id="stat-total-sales" class="font-headline-display text-[26px] text-primary block font-serif">₹0</span>
+        </div>
+        <div class="stat-card">
+          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Orders</span>
+          <span id="stat-total-orders" class="font-headline-display text-[26px] text-primary block font-serif">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Pending Dispatch</span>
+          <span id="stat-pending-orders" class="font-headline-display text-[26px] text-amber-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Scholars</span>
+          <span id="stat-customers" class="font-headline-display text-[26px] text-primary block font-serif">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Low Stock Alerts</span>
+          <span id="stat-low-stock" class="font-headline-display text-[26px] text-error block font-serif">0</span>
+        </div>
+      </div>
+
+      <!-- Recent Orders Table -->
+      <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs space-y-4">
+        <h3 class="font-headline-sm text-headline-sm text-primary font-serif">Recent Campus Orders</h3>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order No.</th>
+                <th>Scholar</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Payment</th>
+              </tr>
+            </thead>
+            <tbody id="admin-recent-orders-table">
+              <tr><td colspan="5" class="text-center py-6 text-on-surface-variant">Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: All Orders Management -->
+    <div id="section-orders" class="admin-section-pane hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Manage Campus Orders</h1>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Update live fulfillment stages from confirmed to delivered or cancelled.</p>
+        </div>
+      </div>
+
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Hostel Destination</th>
+              <th>Total</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody id="admin-all-orders-table">
+            <tr><td colspan="5" class="text-center py-6 text-on-surface-variant">Loading orders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 3: Inventory & Stock Management -->
+    <div id="section-inventory" class="admin-section-pane hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Inventory &amp; Stock Levels</h1>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Quickly adjust stock units to prevent overselling during exam rushes.</p>
+        </div>
+      </div>
+
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Notebook Edition</th>
+              <th>SKU</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Update Stock</th>
+            </tr>
+          </thead>
+          <tbody id="admin-inventory-table">
+            <tr><td colspan="5" class="text-center py-6 text-on-surface-variant">Loading inventory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
+    <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
+    <span class="font-label-md text-label-md" id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    window.showToast = function(msg, icon = 'check_circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    };
+  </script>
+</body>
+</html>

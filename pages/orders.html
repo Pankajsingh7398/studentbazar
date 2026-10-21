@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Campus Orders &amp; Dispatch — StudentBazaar</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/account.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between">
+
+  <header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(64,38,25,0.06)]">
+    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3">
+        <img alt="StudentBazaar Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+        <span class="font-headline-sm text-headline-sm text-primary font-serif">StudentBazaar</span>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition" href="shop.html">Shop</a>
+        <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition" href="account.html">Account</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full pt-28 pb-16 max-w-4xl mx-auto px-4 sm:px-6 flex-1">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Order History</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Live tracking of your 2–5 hour campus gate and hostel deliveries.</p>
+      </div>
+    </div>
+
+    <div id="orders-list-container" class="space-y-4">
+      <div class="py-12 text-center text-on-surface-variant">Loading orders...</div>
+    </div>
+  </main>
+
+  <footer class="py-4 text-center text-label-sm font-label-sm text-on-surface-variant border-t border-surface-container">
+    <p>© 2025 StudentBazaar Private Limited. Official Student Supplier Partner.</p>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
+    <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
+    <span class="font-label-md text-label-md" id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    window.showToast = function(msg, icon = 'check_circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    };
+  </script>
+</body>
+</html>

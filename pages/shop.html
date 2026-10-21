@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Shop All Notebooks &amp; Stationery — StudentBazaar</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f",
+            "outline-variant": "#d4c3bc"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/forms.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/cart.js" defer></script>
+  <script src="../js/wishlist.js" defer></script>
+  <script src="../js/products.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(64,38,25,0.06)]">
+    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+      <a href="../index.html" class="flex items-center gap-3">
+        <img alt="StudentBazaar Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+        <span class="font-headline-sm text-headline-sm text-primary font-serif">StudentBazaar</span>
+      </a>
+
+      <!-- Search Input -->
+      <div class="hidden sm:flex flex-1 max-w-md mx-4">
+        <div class="relative w-full flex items-center">
+          <span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span>
+          <input id="shop-search-input" class="w-full pl-9 pr-4 py-1.5 bg-surface-container-low text-on-surface text-body-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search archival notebooks..." type="text"/>
+        </div>
+      </div>
+
+      <!-- Action items -->
+      <div class="flex items-center gap-4">
+        <a id="header-auth-link" class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition" href="login.html">Login</a>
+        <a aria-label="Wishlist" class="relative p-1.5 text-on-surface-variant hover:text-primary transition" href="wishlist.html">
+          <span class="material-symbols-outlined text-[22px]">favorite</span>
+          <span class="wishlist-badge absolute -top-1 -right-1 bg-secondary text-on-secondary text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </a>
+        <a aria-label="Cart" class="relative p-1.5 text-on-surface-variant hover:text-primary transition" data-path="cart" href="#">
+          <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
+          <span class="cart-badge absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Catalog Content -->
+  <main class="w-full pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col md:flex-row gap-8">
+      
+      <!-- Filter Sidebar -->
+      <aside class="w-full md:w-64 flex-shrink-0 space-y-6">
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-xs">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-serif mb-4">Categories</h3>
+          <div class="space-y-1.5 font-label-md text-label-md">
+            <button class="shop-cat-btn w-full text-left px-3 py-2 rounded-lg bg-primary-container text-on-primary font-bold transition" data-cat="all">All Academic Products</button>
+            <button class="shop-cat-btn w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition" data-cat="notebooks">Notebooks &amp; Journals</button>
+            <button class="shop-cat-btn w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition" data-cat="pens">Pens &amp; Inks</button>
+            <button class="shop-cat-btn w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition" data-cat="bags">Bags &amp; Totes</button>
+            <button class="shop-cat-btn w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition" data-cat="stationery">Exam Kits</button>
+          </div>
+
+          <hr class="my-5 border-surface-container"/>
+
+          <h3 class="font-headline-sm text-headline-sm text-primary font-serif mb-3">Sort By</h3>
+          <select id="shop-sort-select" class="w-full p-2.5 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none">
+            <option value="newest">Newest Editions</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="popular">Most Popular</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- Products Grid Area -->
+      <section class="flex-1">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="font-headline-lg text-headline-lg text-primary font-serif tracking-tight">Academic Collection</h1>
+          <span class="text-label-sm font-label-sm text-on-surface-variant" id="catalog-count-label">Loading products...</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="shop-product-grid">
+          <!-- Dynamically populated via ProductService -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Slide-out Cart Drawer -->
+  <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300" id="cart-drawer-backdrop"></div>
+  <aside aria-label="Cart Drawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-surface-container-lowest shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col justify-between" id="cart-drawer">
+    <div class="p-space-lg bg-surface-container-low flex items-center justify-between">
+      <div class="flex items-center gap-space-sm">
+        <span class="material-symbols-outlined text-primary text-[24px]">shopping_bag</span>
+        <h3 class="font-headline-sm text-headline-sm text-primary">Your Study Kit</h3>
+        <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm" id="drawer-item-count-badge">0 items</span>
+      </div>
+      <button aria-label="Close cart" class="p-1 rounded-full text-on-surface-variant hover:text-primary transition-colors" id="close-cart-btn">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-space-lg py-space-sm bg-surface-container">
+      <div class="flex items-center justify-between font-label-sm text-label-sm mb-1.5">
+        <span class="text-on-surface" id="free-shipping-text">Add ₹200 for Priority Free Hostel Delivery</span>
+        <span class="font-bold text-secondary" id="free-shipping-pct">0%</span>
+      </div>
+      <div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+        <div class="bg-secondary h-full rounded-full transition-all duration-500" id="shipping-bar" style="width: 0%"></div>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto p-space-lg space-y-space-md" id="cart-items-container"></div>
+    <div class="p-space-lg bg-surface-container-low space-y-space-md">
+      <div class="space-y-1 text-body-sm font-body-sm">
+        <div class="flex justify-between text-on-surface-variant"><span>Subtotal</span><span class="font-currency-md text-currency-md text-on-surface" id="cart-subtotal-val">₹0</span></div>
+        <div class="flex justify-between text-on-surface-variant"><span>Campus Courier</span><span class="text-secondary font-medium" id="cart-shipping-val">₹0</span></div>
+        <div class="flex justify-between text-on-surface-variant"><span>Student Discount</span><span class="text-error font-medium" id="cart-discount-val">₹0</span></div>
+        <div class="pt-2 flex justify-between font-headline-sm text-headline-sm text-primary"><span>Total</span><span id="cart-total-val">₹0</span></div>
+      </div>
+      <button class="w-full py-3 bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-primary transition shadow-md" id="checkout-action-btn">
+        Proceed to Campus Delivery
+      </button>
+    </div>
+  </aside>
+
+  <!-- Toast Notification -->
+  <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
+    <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
+    <span class="font-label-md text-label-md" id="toast-message">Item updated</span>
+  </div>
+
+  <script>
+    let activeCat = 'all';
+    let activeSort = 'newest';
+    let searchQuery = '';
+
+    async function refreshCatalog() {
+      const params = { sort: activeSort };
+      if (activeCat !== 'all') params.category = activeCat;
+      if (searchQuery) params.q = searchQuery;
+
+      const products = await window.ProductService.loadProducts('shop-product-grid', params);
+      const countLabel = document.getElementById('catalog-count-label');
+      if (countLabel) countLabel.textContent = `Showing ${products.length} items`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.showToast = function(msg, icon = 'check_circle') {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-message').textContent = msg;
+        document.getElementById('toast-icon').textContent = icon;
+        toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+          toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2800);
+      };
+
+      refreshCatalog();
+
+      // Category filters
+      document.querySelectorAll('.shop-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.shop-cat-btn').forEach(b => {
+            b.classList.remove('bg-primary-container', 'text-on-primary', 'font-bold');
+            b.classList.add('hover:bg-surface-container-low', 'text-on-surface-variant');
+          });
+          btn.classList.add('bg-primary-container', 'text-on-primary', 'font-bold');
+          btn.classList.remove('hover:bg-surface-container-low', 'text-on-surface-variant');
+
+          activeCat = btn.getAttribute('data-cat');
+          refreshCatalog();
+        });
+      });
+
+      // Sort change
+      document.getElementById('shop-sort-select')?.addEventListener('change', (e) => {
+        activeSort = e.target.value;
+        refreshCatalog();
+      });
+
+      // Live search
+      document.getElementById('shop-search-input')?.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        refreshCatalog();
+      });
+
+      // Delegated Add to Cart & Wishlist clicks
+      document.getElementById('shop-product-grid')?.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('.add-to-cart-btn');
+        if (addBtn) {
+          const card = addBtn.closest('.product-card');
+          const id = card.getAttribute('data-id');
+          const name = card.querySelector('h3').textContent.trim();
+          const price = parseInt(card.querySelector('.font-currency-lg').textContent.replace(/[^0-9]/g, ''));
+          window.CartManager.addItem({ id, name, price });
+          return;
+        }
+
+        const wishBtn = e.target.closest('.wishlist-btn');
+        if (wishBtn) {
+          const card = wishBtn.closest('.product-card');
+          const id = card.getAttribute('data-id');
+          const name = card.querySelector('h3').textContent.trim();
+          window.WishlistManager.toggle({ id, name });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

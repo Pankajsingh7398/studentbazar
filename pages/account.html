@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Scholar Profile &amp; Orders — StudentBazaar</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/forms.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/cart.js" defer></script>
+  <script src="../js/account.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+  <header class="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(64,38,25,0.06)]">
+    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3">
+        <img alt="StudentBazaar Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+        <span class="font-headline-sm text-headline-sm text-primary font-serif">StudentBazaar</span>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition" href="shop.html">Shop</a>
+        <a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition" href="wishlist.html">Wishlist</a>
+        <button id="logout-btn" class="px-3 py-1.5 rounded-lg border border-outline-variant text-label-sm font-label-sm hover:border-error hover:text-error transition">
+          Log Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full pt-28 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+      
+      <!-- Profile Card -->
+      <aside class="md:col-span-4 bg-surface-container-lowest p-6 rounded-3xl border border-surface-container shadow-xs space-y-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-serif text-2xl font-bold shadow-xs">
+            SB
+          </div>
+          <div>
+            <h2 id="account-name" class="font-headline-sm text-headline-sm text-primary font-serif">Scholar</h2>
+            <p id="account-role" class="text-label-sm font-label-sm text-secondary font-semibold">Enrolled Scholar</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-surface-container text-body-sm">
+          <div><span class="text-on-surface-variant text-[12px] block">Email:</span><strong id="account-email" class="text-primary font-medium">...</strong></div>
+          <div><span class="text-on-surface-variant text-[12px] block">Contact:</span><strong id="account-phone" class="text-primary font-medium">...</strong></div>
+        </div>
+
+        <div class="pt-2">
+          <div class="flex flex-col gap-1.5 font-label-md">
+            <button class="account-tab-btn active text-left px-3 py-2 rounded-xl text-primary font-bold border-l-4 border-primary bg-surface-container-low transition" data-tab="orders">
+              Campus Orders &amp; History
+            </button>
+            <button class="account-tab-btn text-left px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition" data-tab="addresses">
+              Delivery Addresses
+            </button>
+            <button class="account-tab-btn text-left px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition" data-tab="security">
+              Password &amp; Security
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content Area -->
+      <section class="md:col-span-8 space-y-6">
+        
+        <!-- Tab: Orders -->
+        <div id="tab-orders" class="account-tab-content space-y-4">
+          <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Order History</h1>
+          <div id="orders-list-container" class="space-y-4">
+            <div class="py-12 text-center text-on-surface-variant">Loading your campus dispatches...</div>
+          </div>
+        </div>
+
+        <!-- Tab: Addresses -->
+        <div id="tab-addresses" class="account-tab-content hidden space-y-4">
+          <h2 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Addresses</h2>
+          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+            <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Saved delivery destinations within the 10 km university perimeter.</p>
+            <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container flex items-start justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded bg-primary text-on-primary text-[10px] uppercase font-bold">Default Hostel</span>
+                <p class="font-label-lg text-primary mt-2">Hostel 4, Room 218, North Campus University</p>
+                <p class="text-body-sm text-on-surface-variant">New Delhi, Delhi - 110007</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Security -->
+        <div id="tab-security" class="account-tab-content hidden space-y-4">
+          <h2 class="font-headline-lg text-headline-lg text-primary font-serif">Password &amp; Security</h2>
+          <form class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs space-y-4 max-w-md" onsubmit="event.preventDefault(); alert('Password updated securely.');">
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input type="password" required class="form-input" placeholder="••••••••"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" required minlength="6" class="form-input" placeholder="••••••••"/>
+            </div>
+            <button type="submit" class="px-5 py-2.5 bg-primary text-on-primary rounded-xl font-label-md">Update Password</button>
+          </form>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
+    <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
+    <span class="font-label-md text-label-md" id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    window.showToast = function(msg, icon = 'check_circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    };
+  </script>
+</body>
+</html>

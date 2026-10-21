@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Manage Scholars — StudentBazaar Admin</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#281207",
+            "primary-container": "#402619",
+            "on-primary": "#ffffff",
+            "secondary": "#7c5544",
+            "secondary-container": "#ffccb6",
+            "background": "#fcf9f2",
+            "surface": "#fcf9f2",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1c1c18",
+            "on-surface-variant": "#50443f"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../style.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/forms.css"/>
+  <link rel="stylesheet" href="../css/admin.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+
+  <!-- Scripts -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/admin.js" defer></script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col md:flex-row">
+
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar p-6 flex flex-col justify-between">
+    <div class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary text-[28px]">shield_person</span>
+        <div>
+          <span class="font-headline-sm text-headline-sm text-primary font-serif block leading-none">StudentBazaar</span>
+          <span class="text-[10px] uppercase font-bold tracking-widest text-secondary">Campus Admin Portal</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1.5 pt-4">
+        <a class="admin-nav-item" href="index.html">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span>Overview</span>
+        </a>
+        <a class="admin-nav-item" href="products.html">
+          <span class="material-symbols-outlined text-[20px]">menu_book</span>
+          <span>Products</span>
+        </a>
+        <a class="admin-nav-item" href="orders.html">
+          <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+          <span>Orders</span>
+        </a>
+        <a class="admin-nav-item active" href="customers.html">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span>Customers</span>
+        </a>
+        <a class="admin-nav-item" href="inventory.html">
+          <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+          <span>Inventory</span>
+        </a>
+        <a class="admin-nav-item" href="../index.html">
+          <span class="material-symbols-outlined text-[20px]">storefront</span>
+          <span>Public Storefront</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="pt-6 border-t border-surface-container space-y-3">
+      <div class="text-body-sm text-on-surface-variant">
+        <span>Logged in as:</span>
+        <strong id="admin-user-name" class="block text-primary font-semibold">Store Administrator</strong>
+      </div>
+      <button id="admin-logout-btn" class="w-full py-2 bg-surface-container rounded-xl text-label-sm font-label-sm hover:bg-error hover:text-white transition flex items-center justify-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Admin Main Panel -->
+  <main class="flex-1 p-6 sm:p-10 overflow-y-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Enrolled Scholars &amp; Customers</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Registered students receiving stationery across campus hostel blocks.</p>
+      </div>
+      <button onclick="window.loadAdminCustomersList()" class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high transition">
+        <span class="material-symbols-outlined text-[20px]">refresh</span>
+      </button>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="admin-table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Scholar Name &amp; Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Campus Address</th>
+            <th>Member Since</th>
+          </tr>
+        </thead>
+        <tbody id="admin-customers-table-body">
+          <tr><td colspan="5" class="text-center py-8 text-on-surface-variant">Loading customer accounts...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.loadAdminCustomersList();
+    });
+  </script>
+</body>
+</html>

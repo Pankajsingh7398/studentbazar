@@ -1,0 +1,484 @@
+/* ==========================================================================
+   StudentBazaar — Core Stylesheet (style.css)
+   Preserves visual aesthetics, custom colors, typography, notebook mockups,
+   cart drawer, animations, and responsive layouts.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Design Tokens & Theme Variables
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand Color Palette */
+  --color-primary: #281207;
+  --color-primary-container: #402619;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #b28b7a;
+  --color-primary-fixed: #ffdbcb;
+  --color-primary-fixed-dim: #e8bdaa;
+
+  --color-secondary: #7c5544;
+  --color-secondary-container: #ffccb6;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #7b5443;
+  --color-secondary-fixed: #ffdbcc;
+  --color-secondary-fixed-dim: #eebca6;
+
+  --color-tertiary: #1e170b;
+  --color-tertiary-container: #332b1e;
+  --color-tertiary-fixed: #f0e0cc;
+
+  --color-background: #fcf9f2;
+  --color-surface: #fcf9f2;
+  --color-surface-dim: #dcdad3;
+  --color-surface-bright: #fcf9f2;
+  --color-surface-variant: #e5e2db;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ec;
+  --color-surface-container: #f0eee7;
+  --color-surface-container-high: #ebe8e1;
+  --color-surface-container-highest: #e5e2db;
+
+  --color-on-background: #1c1c18;
+  --color-on-surface: #1c1c18;
+  --color-on-surface-variant: #50443f;
+
+  --color-outline: #82746e;
+  --color-outline-variant: #d4c3bc;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+
+  --color-cream: #F7F4ED;
+  --color-product-bg: #FAF8F5;
+
+  /* Typography */
+  --font-serif: 'Literata', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Layout */
+  --header-height-desktop: 156px;
+  --header-height-mobile: 148px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Base & Reset
+   -------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Hide scrollbar for category and navigation horizontal scrollers */
+.no-scrollbar::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --------------------------------------------------------------------------
+   3. Material Symbols Outlined Configuration
+   -------------------------------------------------------------------------- */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.material-symbols-outlined.filled,
+.wishlist-btn.active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* --------------------------------------------------------------------------
+   4. Color Utility Classes
+   -------------------------------------------------------------------------- */
+.bg-primary { background-color: var(--color-primary); }
+.text-primary { color: var(--color-primary); }
+.border-primary { border-color: var(--color-primary); }
+
+.bg-primary-container { background-color: var(--color-primary-container); }
+.text-on-primary { color: var(--color-on-primary); }
+.text-on-primary-container { color: var(--color-on-primary-container); }
+
+.text-primary-fixed { color: var(--color-primary-fixed); }
+.text-primary-fixed-dim { color: var(--color-primary-fixed-dim); }
+
+.bg-secondary { background-color: var(--color-secondary); }
+.text-secondary { color: var(--color-secondary); }
+.bg-secondary-container { background-color: var(--color-secondary-container); }
+.text-on-secondary { color: var(--color-on-secondary); }
+.text-on-secondary-container { color: var(--color-on-secondary-container); }
+.text-secondary-fixed { color: var(--color-secondary-fixed); }
+
+.bg-surface { background-color: var(--color-surface); }
+.text-on-surface { color: var(--color-on-surface); }
+.text-on-surface-variant { color: var(--color-on-surface-variant); }
+
+.bg-surface-variant { background-color: var(--color-surface-variant); }
+.bg-surface-container { background-color: var(--color-surface-container); }
+.bg-surface-container-low { background-color: var(--color-surface-container-low); }
+.bg-surface-container-high { background-color: var(--color-surface-container-high); }
+.bg-surface-container-highest { background-color: var(--color-surface-container-highest); }
+.bg-surface-container-lowest { background-color: var(--color-surface-container-lowest); }
+
+.text-surface-container-high { color: var(--color-surface-container-high); }
+.text-surface-container-lowest { color: var(--color-surface-container-lowest); }
+.text-surface-variant { color: var(--color-surface-variant); }
+
+.text-outline { color: var(--color-outline); }
+.border-outline { border-color: var(--color-outline); }
+
+.text-error { color: var(--color-error); }
+.bg-error-container { background-color: var(--color-error-container); }
+
+/* --------------------------------------------------------------------------
+   5. Typography Hierarchy
+   -------------------------------------------------------------------------- */
+.font-headline-display {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-headline-lg {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.font-headline-md {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 500;
+}
+
+.font-headline-sm {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+.font-body-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.font-label-lg {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.font-label-md {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+.font-label-sm {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.font-currency-lg {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.font-currency-md {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   6. Header & Navigation Styles
+   -------------------------------------------------------------------------- */
+header {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.nav-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-link.active {
+  color: var(--color-primary);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   7. Hero Carousel
+   -------------------------------------------------------------------------- */
+#carousel-track {
+  will-change: transform;
+}
+
+.carousel-slide {
+  transition: opacity 0.4s ease;
+}
+
+.carousel-dot {
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  outline: none;
+}
+
+/* Watermark background on Hero */
+.stationery-watermark {
+  background-image: radial-gradient(var(--color-primary) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* --------------------------------------------------------------------------
+   8. Realistic Notebook Cover Mockups
+   -------------------------------------------------------------------------- */
+.notebook-mockup-shadow {
+  box-shadow: 0 16px 32px -8px rgba(40, 18, 7, 0.18),
+              0 6px 12px -4px rgba(40, 18, 7, 0.1);
+}
+
+.notebook-cover-spine {
+  box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Spiral Rings for Slide 1 & Product 4 */
+.spiral-ring {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35),
+              0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Sticky Note Shadow & Pin */
+.sticky-note-shadow {
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.12),
+              0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   9. Category Buttons
+   -------------------------------------------------------------------------- */
+.category-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.category-btn.active .category-icon-box {
+  background-color: var(--color-primary-container) !important;
+  color: var(--color-on-primary) !important;
+}
+
+.category-btn.active .category-label {
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Product Cards & Responsive Grid
+   -------------------------------------------------------------------------- */
+.product-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+.wishlist-btn {
+  transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+  color: var(--color-error) !important;
+}
+
+/* Responsive grid requirement:
+   - >= 1024px: 3 columns
+   - ~540px to 1023px: 3 columns matching reference design
+   - 360px to 539px: 2 columns
+   - < 360px: 1 column
+*/
+@media (max-width: 539px) {
+  #product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+
+  #product-grid .product-card {
+    padding: 0.65rem !important;
+  }
+
+  #product-grid .product-card .h-52 {
+    height: 10.5rem !important;
+  }
+
+  #product-grid .product-card .w-32 {
+    width: 6.25rem !important;
+    height: 8.75rem !important;
+  }
+
+  #product-grid .product-card h3 {
+    font-size: 15px !important;
+    line-height: 20px !important;
+    margin-bottom: 4px !important;
+  }
+
+  #product-grid .product-card .text-label-sm {
+    font-size: 10px !important;
+  }
+}
+
+@media (min-width: 540px) and (max-width: 1023px) {
+  #product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  #product-grid .product-card {
+    padding: 0.75rem !important;
+  }
+
+  #product-grid .product-card .h-52 {
+    height: 11.5rem !important;
+  }
+
+  #product-grid .product-card .w-32 {
+    width: 6.75rem !important;
+    height: 9.5rem !important;
+  }
+
+  #product-grid .product-card h3 {
+    font-size: 16px !important;
+    line-height: 22px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 350px) {
+  #product-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   11. Shopping Cart Drawer & Overlay
+   -------------------------------------------------------------------------- */
+#cart-drawer {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+#cart-drawer-backdrop {
+  transition: opacity 0.3s ease;
+}
+
+body.cart-open {
+  overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. Toast Notifications
+   -------------------------------------------------------------------------- */
+#toast {
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* --------------------------------------------------------------------------
+   13. General Responsive Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  main {
+    padding-top: var(--header-height-mobile) !important;
+  }
+}
+
+@media (min-width: 769px) {
+  main {
+    padding-top: var(--header-height-desktop) !important;
+  }
+}
