@@ -94,22 +94,76 @@ const orderSchema = new Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: [
+      'pending',
+      'confirmed',
+      'processing',
+      'packed',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'rejected',
+      'cancelled'
+    ],
     default: 'pending',
     index: true
   },
+  customerSnapshot: {
+    name: { type: String },
+    email: { type: String },
+    phone: { type: String }
+  },
+  whatsappNumber: {
+    type: String,
+    trim: true
+  },
+  whatsappOptIn: {
+    type: Boolean,
+    default: true
+  },
+  courierName: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  trackingNumber: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  trackingUrl: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  estimatedDelivery: {
+    type: Date,
+    default: null
+  },
+  rejectionReason: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  cancellationReason: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  confirmedAt: { type: Date, default: null },
+  processedAt: { type: Date, default: null },
+  packedAt: { type: Date, default: null },
+  shippedAt: { type: Date, default: null },
+  outForDeliveryAt: { type: Date, default: null },
+  deliveredAt: { type: Date, default: null },
+  rejectedAt: { type: Date, default: null },
+  cancelledAt: { type: Date, default: null },
   paymentReference: {
     type: String
   },
   razorpayOrderId: {
     type: String,
     index: true
-  },
-  trackingNumber: {
-    type: String
-  },
-  cancellationReason: {
-    type: String
   }
 }, { timestamps: true });
 

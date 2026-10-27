@@ -337,18 +337,35 @@
   }
 
   function addToCart(product) {
+    if (window.CartManager && typeof window.CartManager.addItem === 'function') {
+      window.CartManager.addItem({
+        id: product.id,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        mockupStyle: product.img,
+        quantity: 1
+      });
+      return;
+    }
+
     const existing = cart.find(item => item.id === product.id);
     if (existing) {
       existing.quantity += 1;
     } else {
       cart.push({ ...product, quantity: 1 });
     }
+    saveCart();
     updateCartTotals();
     showToast(`${product.name} added to study kit!`);
     openCartDrawer();
   }
 
   function changeQuantity(id, delta) {
+    if (window.CartManager && typeof window.CartManager.updateQuantity === 'function') {
+      window.CartManager.updateQuantity(id, delta);
+      return;
+    }
     const item = cart.find(i => i.id === id);
     if (!item) return;
 
@@ -362,6 +379,10 @@
   }
 
   function removeFromCart(id) {
+    if (window.CartManager && typeof window.CartManager.removeItem === 'function') {
+      window.CartManager.removeItem(id);
+      return;
+    }
     cart = cart.filter(i => i.id !== id);
     renderCartItems();
     updateCartTotals();
@@ -604,15 +625,19 @@
     }
 
     // Checkout button inside cart drawer
-    document.getElementById('checkout-action-btn')?.addEventListener('click', () => {
-      if (cart.length === 0) {
+    document.getElementById('checkout-action-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      saveCart();
+      const stored = localStorage.getItem(STORAGE_KEY_CART);
+      let parsed = [];
+      try { parsed = stored ? JSON.parse(stored) : cart; } catch (_) { parsed = cart; }
+      if (!parsed || parsed.length === 0) {
         showToast('Your kit is empty! Add notebooks before checkout.', 'error');
         return;
       }
-      showToast('StudentBazaar Demo: Real checkout requires order-processing backend.', 'local_shipping');
-      setTimeout(() => {
-        closeCartDrawer();
-      }, 1500);
+      closeCartDrawer();
+      const isInsidePages = window.location.pathname.includes('/pages/');
+      window.location.href = isInsidePages ? 'checkout.html' : 'pages/checkout.html';
     });
 
     // Header Search Input
@@ -724,16 +749,22 @@
       });
     });
 
-    // User account and footer links
-    document.querySelector('a[data-path="login"]')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      showToast('Campus Single Sign-On coming soon for enrolled students.');
-    });
-
+    // Footer navigation links
     document.querySelectorAll('footer a[data-path]').forEach(link => {
       link.addEventListener('click', (e) => {
-        e.preventDefault();
-        showToast(`${link.textContent.trim()} page coming soon.`);
+        const path = link.getAttribute('data-path');
+        const isInsidePages = window.location.pathname.includes('/pages/');
+        const prefix = isInsidePages ? '' : 'pages/';
+        if (path === 'order-tracking') {
+          e.preventDefault();
+          window.location.href = `${prefix}orders.html`;
+        } else if (path === 'contact-us' || path === 'returns') {
+          e.preventDefault();
+          window.location.href = `${prefix}contact.html`;
+        } else if (path === 'notebooks' || path === 'stationery' || path === 'accessories' || path === 'shop') {
+          e.preventDefault();
+          window.location.href = `${prefix}shop.html`;
+        }
       });
     });
   }

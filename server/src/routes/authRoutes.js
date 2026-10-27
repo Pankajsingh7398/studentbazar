@@ -6,9 +6,11 @@ import {
   getCurrentUser,
   updateProfile,
   changePassword,
-  forgotPassword
+  forgotPassword,
+  adminLogin,
+  changeAdminPasskey
 } from '../controllers/authController.js';
-import { verifyJWT } from '../middleware/authMiddleware.js';
+import { verifyJWT, requireRole } from '../middleware/authMiddleware.js';
 import { authLimiter } from '../middleware/rateLimitMiddleware.js';
 
 const router = Router();
@@ -21,4 +23,9 @@ router.patch('/profile', verifyJWT, updateProfile);
 router.post('/change-password', verifyJWT, changePassword);
 router.post('/forgot-password', authLimiter, forgotPassword);
 
+// Dedicated Admin Passkey Routes
+router.post('/admin/login', authLimiter, adminLogin);
+router.post('/admin/change-passkey', verifyJWT, requireRole('admin'), changeAdminPasskey);
+
 export default router;
+

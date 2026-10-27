@@ -1,0 +1,16 @@
+/admin  /admin/index.html  200
+/admin/  /admin/index.html  200
+/admin/orders  /admin/orders.html  200
+/admin/products  /admin/products.html  200
+/admin/customers  /admin/customers.html  200
+/admin/inventory  /admin/inventory.html  200
+/orders  /pages/orders.html  200
+/products  /pages/shop.html  200
+/shop  /pages/shop.html  200
+/cart  /pages/cart.html  200
+/checkout  /pages/checkout.html  200
+/account  /pages/account.html  200
+/login  /pages/login.html  200
+/register  /pages/register.html  200
+/about  /pages/about.html  200
+/contact  /pages/contact.html  200

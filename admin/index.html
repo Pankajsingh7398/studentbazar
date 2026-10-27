@@ -62,27 +62,27 @@
       </div>
 
       <nav class="space-y-1.5 pt-4">
-        <a class="admin-nav-item active" href="index.html">
+        <a class="admin-nav-item active" href="/admin/">
           <span class="material-symbols-outlined text-[20px]">dashboard</span>
           <span>Overview</span>
         </a>
-        <a class="admin-nav-item" href="products.html">
+        <a class="admin-nav-item" href="/admin/products.html">
           <span class="material-symbols-outlined text-[20px]">menu_book</span>
           <span>Products</span>
         </a>
-        <a class="admin-nav-item" href="orders.html">
+        <a class="admin-nav-item" href="/admin/orders.html">
           <span class="material-symbols-outlined text-[20px]">local_shipping</span>
           <span>Orders</span>
         </a>
-        <a class="admin-nav-item" href="customers.html">
+        <a class="admin-nav-item" href="/admin/customers.html">
           <span class="material-symbols-outlined text-[20px]">group</span>
           <span>Customers</span>
         </a>
-        <a class="admin-nav-item" href="inventory.html">
+        <a class="admin-nav-item" href="/admin/inventory.html">
           <span class="material-symbols-outlined text-[20px]">inventory_2</span>
           <span>Inventory</span>
         </a>
-        <a class="admin-nav-item" href="../index.html">
+        <a class="admin-nav-item" href="/">
           <span class="material-symbols-outlined text-[20px]">storefront</span>
           <span>Public Storefront</span>
         </a>
@@ -118,26 +118,54 @@
       </div>
 
       <!-- Stat Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <div class="stat-card">
-          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Sales</span>
-          <span id="stat-total-sales" class="font-headline-display text-[26px] text-primary block font-serif">₹0</span>
+          <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Sales</span>
+          <span id="stat-total-sales" class="font-headline-display text-[22px] sm:text-[26px] text-primary block font-serif">₹0</span>
         </div>
         <div class="stat-card">
-          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Orders</span>
-          <span id="stat-total-orders" class="font-headline-display text-[26px] text-primary block font-serif">0</span>
+          <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Total Orders</span>
+          <span id="stat-total-orders" class="font-headline-display text-[22px] sm:text-[26px] text-primary block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-amber-500">
+          <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block mb-1">Awaiting Confirm</span>
+          <span id="stat-pending-orders" class="font-headline-display text-[22px] sm:text-[26px] text-amber-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-blue-500">
+          <span class="text-[11px] font-bold text-blue-800 uppercase tracking-wider block mb-1">Confirmed</span>
+          <span id="stat-confirmed-orders" class="font-headline-display text-[22px] sm:text-[26px] text-blue-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-indigo-500">
+          <span class="text-[11px] font-bold text-indigo-800 uppercase tracking-wider block mb-1">Processing</span>
+          <span id="stat-processing-orders" class="font-headline-display text-[22px] sm:text-[26px] text-indigo-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-teal-500">
+          <span class="text-[11px] font-bold text-teal-800 uppercase tracking-wider block mb-1">Packed</span>
+          <span id="stat-packed-orders" class="font-headline-display text-[22px] sm:text-[26px] text-teal-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-purple-500">
+          <span class="text-[11px] font-bold text-purple-800 uppercase tracking-wider block mb-1">Shipped</span>
+          <span id="stat-shipped-orders" class="font-headline-display text-[22px] sm:text-[26px] text-purple-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-orange-500">
+          <span class="text-[11px] font-bold text-orange-800 uppercase tracking-wider block mb-1">Out For Delivery</span>
+          <span id="stat-out-for-delivery" class="font-headline-display text-[22px] sm:text-[26px] text-orange-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-emerald-500">
+          <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block mb-1">Delivered</span>
+          <span id="stat-delivered-orders" class="font-headline-display text-[22px] sm:text-[26px] text-emerald-700 block font-serif">0</span>
+        </div>
+        <div class="stat-card border-l-4 border-rose-500">
+          <span class="text-[11px] font-bold text-rose-800 uppercase tracking-wider block mb-1">Cancelled / Reject</span>
+          <span id="stat-cancelled-orders" class="font-headline-display text-[22px] sm:text-[26px] text-rose-700 block font-serif">0</span>
         </div>
         <div class="stat-card">
-          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Pending Dispatch</span>
-          <span id="stat-pending-orders" class="font-headline-display text-[26px] text-amber-700 block font-serif">0</span>
+          <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Pending Payments</span>
+          <span id="stat-pending-payments" class="font-headline-display text-[22px] sm:text-[26px] text-amber-800 block font-serif">0</span>
         </div>
         <div class="stat-card">
-          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Scholars</span>
-          <span id="stat-customers" class="font-headline-display text-[26px] text-primary block font-serif">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Low Stock Alerts</span>
-          <span id="stat-low-stock" class="font-headline-display text-[26px] text-error block font-serif">0</span>
+          <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Scholars</span>
+          <span id="stat-customers" class="font-headline-display text-[22px] sm:text-[26px] text-primary block font-serif">0</span>
         </div>
       </div>
 

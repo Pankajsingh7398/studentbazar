@@ -33,57 +33,106 @@ StudentBazaar is a production-grade, secure, responsive full-stack e-commerce we
 - **npm** (v9+)
 - **MongoDB** (Local instance or MongoDB Atlas cluster connection string)
 
-### 1. Installation
+## 📁 Project Structure
 
-Clone or open the repository directory:
-```bash
-cd StudentBazaar
+```
+.
+├── index.html          # Public Storefront (Home)
+├── pages/              # Frontend Pages (shop, product, cart, checkout, login, orders)
+├── js/                 # Client scripts (api.js, auth.js, cart.js, checkout.js, etc.)
+├── css/                # Stylesheets (components.css, forms.css, responsive.css)
+├── admin/              # Admin Portal (orders.html, index.html, products.html, etc.)
+├── server/             # Express.js REST API & MongoDB models
+│   ├── src/
+│   │   ├── controllers/# Business logic (auth, orders, admin, cart, products)
+│   │   ├── models/     # Mongoose Schemas (User, Order, NotificationLog, etc.)
+│   │   ├── routes/     # API routes (/api/v1/...)
+│   │   ├── services/   # WhatsApp Cloud API service
+│   │   └── server.js   # Server entrypoint (Port 5001)
+└── package.json        # Root runner scripts
 ```
 
-Install server dependencies:
+> **Note**: Frontend files (`index.html`, `pages/`, `js/`) reside in the root directory. There is no separate `cd frontend` directory.
+
+---
+
+## 🚀 Getting Started & How to Run
+
+### Prerequisites
+- **Node.js** (v18.0 or higher)
+- **MongoDB** (running locally on port 27017)
+
+### 1. Install Dependencies
+From the project root directory:
 ```bash
 cd server
 npm install
+cd ..
 ```
 
 ### 2. Environment Setup
-
-Copy `.env.example` to create your working `.env`:
-```bash
-cp .env.example .env
-```
-
-Ensure your MongoDB URI and secrets are specified:
+Verify that `.env` exists in the root directory (copied from `.env.example`):
 ```ini
 NODE_ENV=development
-PORT=5000
+PORT=5001
+FRONTEND_URL=http://localhost:8080
 MONGODB_URI=mongodb://localhost:27017/studentbazaar
-JWT_SECRET=your_secure_random_jwt_secret
-COOKIE_SECRET=your_secure_cookie_secret
+JWT_SECRET=your_secure_jwt_secret
+ADMIN_PASSKEY=AdminPassKey123!
 ```
 
 ### 3. Seed Database
-Seed initial categories and the 6 archival notebook editions:
+Seed categories, archival notebook editions, demo accounts, and coupons:
 ```bash
-cd server
 npm run seed
+# OR: cd server && npm run seed
 ```
 
-### 4. Running the Application
+---
 
-Start the backend server:
+### 4. Running Backend and Frontend
+
+You can run the application in two ways:
+
+#### Option A: Quick Start (Backend serves both API and Frontend)
+The backend server is configured to automatically serve the frontend static pages:
 ```bash
+# From project root:
+npm run backend
+
+# OR:
 cd server
 npm run dev
-# Server will listen on http://localhost:5000
+```
+- **Backend API & Storefront URL**: [`http://localhost:5001`](http://localhost:5001)
+- **Admin Orders Portal**: [`http://localhost:5001/admin/orders.html`](http://localhost:5001/admin/orders.html)
+- **Scholar Login**: [`http://localhost:5001/pages/login.html`](http://localhost:5001/pages/login.html)
+
+---
+
+#### Option B: Dedicated Frontend Dev Server (Port 8080)
+If you prefer running the frontend on a dedicated static server (port 8080) alongside the backend:
+
+**Terminal 1 — Run Backend:**
+```bash
+npm run backend
+# Listens on http://localhost:5001
 ```
 
-Serve the frontend application:
-Open `index.html` directly in a browser or serve via any static HTTP server:
+**Terminal 2 — Run Frontend (from project root):**
 ```bash
-# Example using Python HTTP server
-python3 -m http.server 8080
-# Open http://localhost:8080 in your browser
+npm run frontend
+# Listens on http://localhost:8080
+```
+*(Alternatively, you can also run `npx serve -l 8080 .` or `python3 -m http.server 8080` from the root directory).*
+
+---
+
+### 5. Running Automated Tests
+Run all 29 automated integration tests covering authentication, admin passkey, order lifecycle, live tracking, and WhatsApp webhooks:
+```bash
+npm test
+# OR: cd server && npm test
 ```
 
 ---
@@ -99,7 +148,8 @@ python3 -m http.server 8080
 
 ## 📚 Technical Documentation
 
-Detailed architectural and schema documentation is available in `docs/`:
+Detailed architectural and schema documentation is available:
+- **[Full Implementation Guide (Order Management & WhatsApp)](PROJECT_IMPLEMENTATION.md)**
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Database Schema & Models](docs/DATABASE_SCHEMA.md)
 - [API Documentation](docs/API_DOCUMENTATION.md)
@@ -111,3 +161,4 @@ Detailed architectural and schema documentation is available in `docs/`:
 
 ## 📄 License
 Copyright © 2025 StudentBazaar Private Limited. Crafted for scholars.
+# studentbazar

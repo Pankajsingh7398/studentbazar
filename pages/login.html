@@ -69,33 +69,56 @@
   <!-- Login Card Form -->
   <main class="flex-1 flex items-center justify-center p-4 py-12">
     <div class="w-full max-w-md bg-surface-container-lowest p-8 rounded-3xl border border-surface-container shadow-xl space-y-6">
-      <div class="text-center space-y-1">
+      
+      <!-- Role Switcher Tabs -->
+      <div class="flex p-1 bg-surface-container-low rounded-2xl border border-surface-container">
+        <button id="tab-customer-btn" type="button" class="flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition bg-surface-container-lowest text-primary shadow-xs flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">person</span>
+          <span>Customer Login</span>
+        </button>
+        <button id="tab-admin-btn" type="button" class="flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition text-on-surface-variant hover:text-primary flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          <span>Admin Login</span>
+        </button>
+      </div>
+
+      <!-- Customer Header -->
+      <div id="customer-header" class="text-center space-y-1">
         <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Scholar Login</h1>
         <p class="font-body-sm text-body-sm text-on-surface-variant">Sign in to manage your campus study kits &amp; hostel orders.</p>
       </div>
 
-      <!-- Quick Demo Credentials Pill -->
-      <div class="p-3 bg-surface-container-low rounded-xl text-[12px] space-y-1 border border-outline-variant/60">
-        <div class="font-bold text-primary">Demo Credentials (Pre-seeded):</div>
-        <div>Customer: <code class="bg-surface px-1 py-0.5 rounded text-primary">scholar@studentbazaar.in</code> / <code class="bg-surface px-1 py-0.5 rounded text-primary">ScholarPass123!</code></div>
-        <div>Admin: <code class="bg-surface px-1 py-0.5 rounded text-primary">admin@studentbazaar.in</code> / <code class="bg-surface px-1 py-0.5 rounded text-primary">AdminPass123!</code></div>
+      <!-- Admin Header (Hidden by default) -->
+      <div id="admin-header" class="text-center space-y-1 hidden">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full mb-1">
+          <span class="material-symbols-outlined text-[16px]">lock</span>
+          <span>Restricted Admin Terminal</span>
+        </div>
+        <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Admin Passkey</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Enter your configurable admin passkey to access store management.</p>
       </div>
 
-      <form id="login-form" class="space-y-4">
+      <!-- Customer Login Form -->
+      <form id="customer-login-form" class="space-y-4">
         <div class="form-group">
-          <label class="form-label">Email Address</label>
+          <label class="form-label" for="login-email">Email Address</label>
           <input id="login-email" type="email" required class="form-input" placeholder="scholar@studentbazaar.in" value="scholar@studentbazaar.in"/>
         </div>
 
         <div class="form-group">
           <div class="flex items-center justify-between">
-            <label class="form-label">Password</label>
-            <a href="#" class="text-[12px] text-secondary hover:underline" onclick="alert('Password reset link will be dispatched to your university email.')">Forgot?</a>
+            <label class="form-label" for="login-password">Password</label>
+            <a href="#" class="text-[12px] text-secondary hover:underline" onclick="alert('Password reset link will be dispatched to your registered university email.')">Forgot?</a>
           </div>
-          <input id="login-password" type="password" required class="form-input" placeholder="••••••••" value="ScholarPass123!"/>
+          <div class="relative">
+            <input id="login-password" type="password" required class="form-input pr-10" placeholder="••••••••" value="ScholarPass123!"/>
+            <button type="button" id="toggle-customer-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+            </button>
+          </div>
         </div>
 
-        <button id="login-submit-btn" type="submit" class="w-full py-3.5 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-primary-container transition shadow-md flex items-center justify-center gap-2">
+        <button id="customer-submit-btn" type="submit" class="w-full py-3.5 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-primary-container transition shadow-md flex items-center justify-center gap-2">
           <span>Sign In to Campus Kit</span>
           <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
         </button>
@@ -114,9 +137,39 @@
         </button>
       </form>
 
+      <!-- Admin Passkey Login Form (Hidden by default) -->
+      <form id="admin-login-form" class="space-y-4 hidden">
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+          <span class="material-symbols-outlined text-amber-600 text-[18px] shrink-0 mt-0.5">verified_user</span>
+          <div>
+            <strong>Passkey Secured:</strong> Passkey is validated strictly on the backend with rate limiting. It is never exposed in browser scripts.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="admin-passkey">Administrator Passkey</label>
+          <div class="relative">
+            <input id="admin-passkey" type="password" required class="form-input pr-10 font-mono tracking-wider" placeholder="Enter configured admin passkey" autocomplete="current-password"/>
+            <button type="button" id="toggle-admin-passkey" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label text-xs text-on-surface-variant" for="admin-email">Admin Email (Optional if default)</label>
+          <input id="admin-email" type="email" class="form-input text-sm" placeholder="admin@studentbazaar.com (optional)"/>
+        </div>
+
+        <button id="admin-submit-btn" type="submit" class="w-full py-3.5 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg hover:bg-primary-container transition shadow-md flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">key</span>
+          <span>Authenticate Admin Passkey</span>
+        </button>
+      </form>
+
       <div id="clerk-auth-container" class="mt-4 flex justify-center"></div>
 
-      <div class="text-center text-body-sm text-on-surface-variant pt-2 border-t border-surface-container">
+      <div id="register-prompt" class="text-center text-body-sm text-on-surface-variant pt-2 border-t border-surface-container">
         <span>New to StudentBazaar?</span>
         <a href="register.html" class="text-primary font-bold hover:underline ml-1">Create an Account</a>
       </div>
@@ -143,8 +196,51 @@
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
         toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2800);
+      }, 3000);
     };
+
+    // Tab Switching Logic
+    const tabCustomerBtn = document.getElementById('tab-customer-btn');
+    const tabAdminBtn = document.getElementById('tab-admin-btn');
+    const customerHeader = document.getElementById('customer-header');
+    const adminHeader = document.getElementById('admin-header');
+    const customerForm = document.getElementById('customer-login-form');
+    const adminForm = document.getElementById('admin-login-form');
+    const registerPrompt = document.getElementById('register-prompt');
+
+    function switchToCustomer() {
+      tabCustomerBtn.className = "flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition bg-surface-container-lowest text-primary shadow-xs flex items-center justify-center gap-1.5";
+      tabAdminBtn.className = "flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition text-on-surface-variant hover:text-primary flex items-center justify-center gap-1.5";
+      customerHeader.classList.remove('hidden');
+      adminHeader.classList.add('hidden');
+      customerForm.classList.remove('hidden');
+      adminForm.classList.add('hidden');
+      registerPrompt.classList.remove('hidden');
+    }
+
+    function switchToAdmin() {
+      tabAdminBtn.className = "flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition bg-surface-container-lowest text-primary shadow-xs flex items-center justify-center gap-1.5";
+      tabCustomerBtn.className = "flex-1 py-2.5 px-4 text-center font-bold text-sm rounded-xl transition text-on-surface-variant hover:text-primary flex items-center justify-center gap-1.5";
+      customerHeader.classList.add('hidden');
+      adminHeader.classList.remove('hidden');
+      customerForm.classList.add('hidden');
+      adminForm.classList.remove('hidden');
+      registerPrompt.classList.add('hidden');
+    }
+
+    tabCustomerBtn.addEventListener('click', switchToCustomer);
+    tabAdminBtn.addEventListener('click', switchToAdmin);
+
+    // Password visibility toggles
+    document.getElementById('toggle-customer-password')?.addEventListener('click', () => {
+      const input = document.getElementById('login-password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    document.getElementById('toggle-admin-passkey')?.addEventListener('click', () => {
+      const input = document.getElementById('admin-passkey');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
 
     // Clerk Sign-in Integration
     document.getElementById('clerk-sign-in-btn')?.addEventListener('click', async () => {
@@ -166,14 +262,15 @@
       }
     });
 
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    // Customer Login Handler
+    customerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
-      const btn = document.getElementById('login-submit-btn');
+      const btn = document.getElementById('customer-submit-btn');
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Verifying...</span>';
+      btn.innerHTML = '<span>Verifying credentials...</span>';
 
       try {
         const user = await window.AuthManager.login(email, password);
@@ -181,11 +278,37 @@
         
         const redirect = sessionStorage.getItem('redirect_after_login') || (user.role === 'admin' ? '/admin/index.html' : '/pages/account.html');
         sessionStorage.removeItem('redirect_after_login');
-        setTimeout(() => { window.location.href = redirect; }, 1000);
+        setTimeout(() => { window.location.href = redirect; }, 800);
       } catch (err) {
         window.showToast(err.message || 'Login failed.', 'error');
         btn.disabled = false;
         btn.innerHTML = '<span>Sign In to Campus Kit</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+      }
+    });
+
+    // Admin Passkey Login Handler
+    adminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const passkey = document.getElementById('admin-passkey').value;
+      const email = document.getElementById('admin-email').value.trim();
+      const btn = document.getElementById('admin-submit-btn');
+
+      if (!passkey) {
+        window.showToast('Please enter the admin passkey.', 'warning');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Validating passkey...</span>';
+
+      try {
+        const user = await window.AuthManager.adminLogin(passkey, email || undefined);
+        window.showToast(`Admin authenticated! Opening Dashboard...`, 'verified_user');
+        setTimeout(() => { window.location.href = '/admin/index.html'; }, 800);
+      } catch (err) {
+        window.showToast(err.message || 'Admin authentication failed. Passkey is incorrect.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">key</span><span>Authenticate Admin Passkey</span>';
       }
     });
   </script>

@@ -40,6 +40,38 @@ const AuthManager = (function () {
     throw new Error(res.message || 'Login failed');
   }
 
+  async function adminLogin(passkey, email) {
+    const res = await window.apiRequest('/auth/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ passkey, email })
+    });
+
+    if (res && res.success && res.data.user) {
+      currentUser = res.data.user;
+      if (res.data.token) {
+        localStorage.setItem('sb_auth_token', res.data.token);
+      }
+      updateAuthUI();
+      return currentUser;
+    }
+    throw new Error(res.message || 'Admin passkey authentication failed');
+  }
+
+  async function changeAdminPasskey(currentPasskey, newPasskey) {
+    const res = await window.apiRequest('/auth/admin/change-passkey', {
+      method: 'POST',
+      body: JSON.stringify({ currentPasskey, newPasskey })
+    });
+
+    if (res && res.success) {
+      if (res.data?.token) {
+        localStorage.setItem('sb_auth_token', res.data.token);
+      }
+      return true;
+    }
+    throw new Error(res.message || 'Failed to update admin passkey');
+  }
+
   async function register(userData) {
     const res = await window.apiRequest('/auth/register', {
       method: 'POST',
@@ -109,6 +141,8 @@ const AuthManager = (function () {
   return {
     checkSession,
     login,
+    adminLogin,
+    changeAdminPasskey,
     register,
     logout,
     getUser: () => currentUser,

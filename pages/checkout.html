@@ -80,27 +80,48 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="form-group">
-              <label class="form-label">Full Name</label>
+              <label class="form-label" for="checkout-name">Full Name</label>
               <input id="checkout-name" type="text" required class="form-input" placeholder="e.g. Arjun Sharma"/>
             </div>
             <div class="form-group">
-              <label class="form-label">Phone / WhatsApp</label>
+              <label class="form-label" for="checkout-phone">Registered Phone Number</label>
               <input id="checkout-phone" type="tel" required class="form-input" placeholder="e.g. 9876543210"/>
             </div>
           </div>
 
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="form-group">
+              <div class="flex items-center justify-between">
+                <label class="form-label" for="checkout-whatsapp">WhatsApp Number</label>
+                <button type="button" id="copy-phone-btn" class="text-[11px] text-secondary hover:underline">Same as phone</button>
+              </div>
+              <input id="checkout-whatsapp" type="tel" class="form-input" placeholder="e.g. 9876543210 (if different)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="checkout-instructions">Delivery Instructions (Optional)</label>
+              <input id="checkout-instructions" type="text" class="form-input" placeholder="e.g. Call upon reaching campus gate"/>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-3 bg-surface-container-low rounded-xl border border-surface-container">
+            <input type="checkbox" id="checkout-whatsapp-optin" checked class="mt-0.5 rounded border-outline-variant text-primary focus:ring-primary h-4 w-4"/>
+            <label for="checkout-whatsapp-optin" class="text-xs text-on-surface-variant font-medium leading-relaxed">
+              <strong class="text-primary font-semibold">Automatic WhatsApp Notifications:</strong> Send order confirmation, admin processing alerts, and courier dispatch updates directly to my WhatsApp.
+            </label>
+          </div>
+
           <div class="form-group">
-            <label class="form-label">Hostel Name / Wing / Room No.</label>
+            <label class="form-label" for="checkout-hostel">Hostel Name / Building / Flat / Room No.</label>
             <input id="checkout-hostel" type="text" required class="form-input" placeholder="e.g. Tagore Hostel, Room 204, Block B"/>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="form-group sm:col-span-2">
-              <label class="form-label">College / University Campus</label>
+              <label class="form-label" for="checkout-campus">College / University / Campus</label>
               <input id="checkout-campus" type="text" required class="form-input" placeholder="e.g. North Campus, Delhi University"/>
             </div>
             <div class="form-group">
-              <label class="form-label">Pin Code</label>
+              <label class="form-label" for="checkout-pincode">Pin Code</label>
               <input id="checkout-pincode" type="text" required class="form-input" placeholder="110007"/>
             </div>
           </div>
@@ -179,20 +200,36 @@
   <!-- Order Success Modal -->
   <div id="order-success-modal" class="fixed inset-0 z-50 modal-overlay hidden items-center justify-center p-4">
     <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl p-8 text-center space-y-4 modal-card border border-surface-container shadow-2xl">
-      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
-        <span class="material-symbols-outlined text-[36px]">check_circle</span>
+      <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-[36px]">hourglass_top</span>
       </div>
-      <h2 class="font-headline-lg text-headline-lg text-primary font-serif">Order Confirmed!</h2>
+      <h2 class="font-headline-lg text-headline-lg text-primary font-serif">Order Received!</h2>
       <p class="font-body-md text-on-surface-variant">
-        Your stationery has been assigned to campus courier dispatch.
+        Your order has been recorded and is currently <strong class="text-primary font-semibold">Awaiting Store Confirmation</strong>.
       </p>
+
+      <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 text-left flex items-start gap-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[18px] shrink-0 mt-0.5">chat</span>
+        <div>
+          <strong class="font-bold">WhatsApp Alert Sent:</strong> Store administrator received your order details via WhatsApp. You will receive real-time notifications as status changes.
+        </div>
+      </div>
+
       <div class="p-4 bg-surface-container-low rounded-2xl text-left space-y-1">
         <div class="flex justify-between text-label-sm"><span class="text-on-surface-variant">Order Number:</span><strong id="success-order-number" class="text-primary font-mono font-bold">SB-XXXX</strong></div>
         <div class="flex justify-between text-label-sm"><span class="text-on-surface-variant">Total Amount:</span><strong id="success-order-total" class="text-primary">₹0</strong></div>
+        <div class="flex justify-between text-label-sm"><span class="text-on-surface-variant">Status:</span><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[11px]">Pending Confirmation</span></div>
       </div>
       <div class="pt-2 flex flex-col gap-2">
-        <a href="orders.html" class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary-container transition">Track Campus Dispatch</a>
-        <a href="../index.html" class="w-full py-2.5 text-on-surface-variant hover:text-primary transition font-label-md text-label-md">Return to Storefront</a>
+        <a id="success-whatsapp-admin-btn" target="_blank" href="https://wa.me/918429172879" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-label-md text-label-md transition flex items-center justify-center gap-2 shadow-xs">
+          <span class="material-symbols-outlined text-[18px]">chat</span>
+          <span>Send Notification to Admin WhatsApp</span>
+        </a>
+        <a id="success-track-btn" href="orders.html" class="w-full py-2.5 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary-container transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">timeline</span>
+          <span>Track Order Lifecycle</span>
+        </a>
+        <a href="../index.html" class="w-full py-2 text-on-surface-variant hover:text-primary transition font-label-md text-label-md">Return to Storefront</a>
       </div>
     </div>
   </div>

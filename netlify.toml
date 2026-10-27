@@ -1,0 +1,92 @@
+# Netlify Configuration for StudentBazaar
+[build]
+  publish = "."
+
+# Clean URL Rewrites for Netlify
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/orders"
+  to = "/admin/orders.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/products"
+  to = "/admin/products.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/customers"
+  to = "/admin/customers.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/inventory"
+  to = "/admin/inventory.html"
+  status = 200
+
+[[redirects]]
+  from = "/orders"
+  to = "/pages/orders.html"
+  status = 200
+
+[[redirects]]
+  from = "/products"
+  to = "/pages/shop.html"
+  status = 200
+
+[[redirects]]
+  from = "/shop"
+  to = "/pages/shop.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart"
+  to = "/pages/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/checkout"
+  to = "/pages/checkout.html"
+  status = 200
+
+[[redirects]]
+  from = "/account"
+  to = "/pages/account.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/pages/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/register"
+  to = "/pages/register.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/pages/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/pages/contact.html"
+  status = 200
+
+# Proxy API calls to live backend (Replace with your live Render/Railway URL)
+# Example: to = "https://studentbazaar-api.onrender.com/api/v1/:splat"
+[[redirects]]
+  from = "/api/v1/*"
+  to = "https://your-studentbazaar-backend.onrender.com/api/v1/:splat"
+  status = 200
+  force = false

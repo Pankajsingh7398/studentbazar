@@ -19,6 +19,7 @@ import wishlistRoutes from './routes/wishlistRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import webhookRoutes from './routes/webhookRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,13 +74,18 @@ if (process.env.CLERK_SECRET_KEY) {
   app.use(clerkMiddleware());
 }
 
-// NoSQL Injection sanitizer middleware (strips keys containing $ or .)
+// NoSQL Injection sanitizer middleware (strips keys containing $ or malicious dots)
 app.use((req, res, next) => {
   const sanitize = (obj) => {
     if (!obj || typeof obj !== 'object') return obj;
     for (const key of Object.keys(obj)) {
-      if (key.startsWith('$') || key.includes('.')) {
+      if (key.startsWith('$')) {
         delete obj[key];
+      } else if (key.includes('.')) {
+        // Allow Meta WhatsApp Webhook handshake query keys (hub.mode, hub.verify_token, hub.challenge)
+        if (!key.startsWith('hub.')) {
+          delete obj[key];
+        }
       } else if (typeof obj[key] === 'object') {
         sanitize(obj[key]);
       }
@@ -125,6 +131,7 @@ app.use('/api/v1/wishlist', wishlistRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/webhooks', webhookRoutes);
 
 // Catch-all 404 for undefined API routes
 app.all('/api/v1/*', (req, res) => {

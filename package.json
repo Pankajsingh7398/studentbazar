@@ -1,0 +1,15 @@
+{
+  "name": "studentbazaar",
+  "version": "1.0.0",
+  "description": "StudentBazaar - Academic Stationery & Campus Store Full-Stack Application",
+  "scripts": {
+    "dev": "npm --prefix server run dev",
+    "backend": "npm --prefix server run dev",
+    "start": "npm --prefix server start",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server test",
+    "frontend": "npx -y serve -l 8080 ."
+  },
+  "author": "StudentBazaar Engineering",
+  "license": "ISC"
+}

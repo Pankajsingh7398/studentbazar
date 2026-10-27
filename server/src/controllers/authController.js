@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/apiError.js';
 import { ApiResponse } from '../utils/apiResponse.js';
@@ -140,3 +141,113 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, 'If an account exists with this email, a reset link has been dispatched.'));
 });
+
+/**
+ * Admin Passkey Authentication
+ * Verifies against ADMIN_PASSKEY env variable or hashed passkey in User model
+ */
+export const adminLogin = asyncHandler(async (req, res) => {
+  const { passkey, email } = req.body;
+
+  if (!passkey || typeof passkey !== 'string') {
+    throw new ApiError(400, 'Admin passkey is required.');
+  }
+
+  const configuredPasskey = process.env.ADMIN_PASSKEY;
+  let adminUser = null;
+
+  if (email) {
+    adminUser = await User.findOne({ email: email.toLowerCase().trim(), role: 'admin' }).select('+adminPasskeyHash');
+  } else {
+    adminUser = await User.findOne({ role: 'admin' }).select('+adminPasskeyHash');
+  }
+
+  let isValid = false;
+
+  // 1. Check against DB hashed passkey if exists
+  if (adminUser && adminUser.adminPasskeyHash) {
+    isValid = await bcrypt.compare(passkey, adminUser.adminPasskeyHash);
+  }
+
+  // 2. Fallback to configured ADMIN_PASSKEY env variable
+  if (!isValid && configuredPasskey && passkey === configuredPasskey) {
+    isValid = true;
+  }
+
+  if (!isValid) {
+    throw new ApiError(401, 'Invalid admin passkey. Access denied.');
+  }
+
+  // Auto-provision primary administrator if not exists yet
+  if (!adminUser) {
+    const defaultEmail = (process.env.ADMIN_EMAIL || 'admin@studentbazaar.com').toLowerCase();
+    adminUser = await User.findOne({ email: defaultEmail });
+    if (!adminUser) {
+      adminUser = new User({
+        name: 'Store Administrator',
+        email: defaultEmail,
+        role: 'admin',
+        phone: process.env.ADMIN_WHATSAPP_NUMBER || '918429172879',
+        isActive: true
+      });
+    } else {
+      adminUser.role = 'admin';
+    }
+  }
+
+  // Persist passkey hash to database for security
+  adminUser.adminPasskeyHash = await bcrypt.hash(passkey, 12);
+  adminUser.role = 'admin';
+  await adminUser.save();
+
+  const token = adminUser.generateAccessToken();
+  const userResponse = await User.findById(adminUser._id).select('-passwordHash -adminPasskeyHash');
+
+  return res
+    .status(200)
+    .cookie('token', token, COOKIE_OPTIONS)
+    .json(new ApiResponse(200, 'Admin authenticated successfully with passkey.', { user: userResponse, token }));
+});
+
+/**
+ * Change Admin Passkey
+ */
+export const changeAdminPasskey = asyncHandler(async (req, res) => {
+  const { currentPasskey, newPasskey } = req.body;
+
+  if (!currentPasskey || !newPasskey) {
+    throw new ApiError(400, 'Both current and new admin passkeys are required.');
+  }
+
+  if (newPasskey.length < 8) {
+    throw new ApiError(400, 'New passkey must be at least 8 characters in length.');
+  }
+
+  const adminUser = await User.findById(req.user._id).select('+adminPasskeyHash');
+  if (!adminUser || adminUser.role !== 'admin') {
+    throw new ApiError(403, 'Forbidden. Only administrators can perform this action.');
+  }
+
+  let isMatch = false;
+  if (adminUser.adminPasskeyHash) {
+    isMatch = await bcrypt.compare(currentPasskey, adminUser.adminPasskeyHash);
+  }
+  if (!isMatch && process.env.ADMIN_PASSKEY && currentPasskey === process.env.ADMIN_PASSKEY) {
+    isMatch = true;
+  }
+
+  if (!isMatch) {
+    throw new ApiError(401, 'Current admin passkey does not match.');
+  }
+
+  adminUser.adminPasskeyHash = await bcrypt.hash(newPasskey, 12);
+  await adminUser.save();
+
+  const newToken = adminUser.generateAccessToken();
+
+  return res
+    .status(200)
+    .cookie('token', newToken, COOKIE_OPTIONS)
+    .json(new ApiResponse(200, 'Admin passkey updated successfully.'));
+});
+

@@ -16,24 +16,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   const adminNameElem = document.getElementById('admin-user-name');
   if (adminNameElem) adminNameElem.textContent = user.name;
 
-  // Load Dashboard Data
-  loadDashboardStats();
-  loadAdminOrders();
-  loadInventory();
-
-  // Navigation tabs in admin portal
+  // Highlight active sidebar item based on current page URL
+  const currentPath = window.location.pathname.toLowerCase();
   const adminNavLinks = document.querySelectorAll('.admin-nav-item');
   adminNavLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      adminNavLinks.forEach(l => l.classList.remove('active', 'bg-primary-container', 'text-on-primary'));
-      link.classList.add('active', 'bg-primary-container', 'text-on-primary');
+    const href = link.getAttribute('href');
+    if (!href) return;
+    link.classList.remove('active', 'bg-primary-container', 'text-on-primary');
 
-      const section = link.getAttribute('data-section');
-      document.querySelectorAll('.admin-section-pane').forEach(p => p.classList.add('hidden'));
-      document.getElementById(`section-${section}`)?.classList.remove('hidden');
-    });
+    // Skip Public Storefront link from being highlighted as active in admin
+    const text = link.textContent.trim().toLowerCase();
+    if (text.includes('public storefront') || href === '/' || href === '/index.html') {
+      return;
+    }
+
+    const isOverview = text.includes('overview') &&
+      (currentPath.endsWith('/admin') || currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html') || currentPath.endsWith('/admin/index'));
+
+    const isProducts = text.includes('products') && currentPath.includes('products');
+    const isOrders = text.includes('orders') && currentPath.includes('orders');
+    const isCustomers = text.includes('customers') && currentPath.includes('customers');
+    const isInventory = text.includes('inventory') && currentPath.includes('inventory');
+
+    if (isOverview || isProducts || isOrders || isCustomers || isInventory) {
+      link.classList.add('active', 'bg-primary-container', 'text-on-primary');
+    }
   });
+
+  // Load Dashboard & Page Data conditionally based on what is in DOM
+  if (document.getElementById('stat-total-sales')) loadDashboardStats();
+  if (document.getElementById('admin-all-orders-table')) loadAdminOrders();
+  if (document.getElementById('admin-inventory-table')) window.loadInventory();
+  if (document.getElementById('admin-products-table-body')) window.loadAdminProductsList();
+  if (document.getElementById('admin-customers-table-body')) window.loadAdminCustomersList();
 
   // Logout button
   document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
@@ -47,11 +62,21 @@ async function loadDashboardStats() {
     if (res && res.success && res.data) {
       const { overview, recentOrders } = res.data;
 
-      document.getElementById('stat-total-sales').textContent = `₹${overview.totalSales.toLocaleString('en-IN')}`;
-      document.getElementById('stat-total-orders').textContent = overview.totalOrders;
-      document.getElementById('stat-pending-orders').textContent = overview.pendingOrders;
-      document.getElementById('stat-customers').textContent = overview.totalCustomers;
-      document.getElementById('stat-low-stock').textContent = overview.lowStockCount;
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+      setVal('stat-total-sales', `₹${overview.totalSales.toLocaleString('en-IN')}`);
+      setVal('stat-total-orders', overview.totalOrders || 0);
+      setVal('stat-pending-orders', overview.pendingOrders || 0);
+      setVal('stat-confirmed-orders', overview.confirmedOrders || 0);
+      setVal('stat-processing-orders', overview.processingOrders || 0);
+      setVal('stat-packed-orders', overview.packedOrders || 0);
+      setVal('stat-shipped-orders', overview.shippedOrders || 0);
+      setVal('stat-out-for-delivery', overview.outForDeliveryOrders || 0);
+      setVal('stat-delivered-orders', overview.deliveredOrders || 0);
+      setVal('stat-cancelled-orders', (overview.cancelledOrders || 0) + (overview.rejectedOrders || 0));
+      setVal('stat-pending-payments', overview.pendingPaymentsCount || 0);
+      setVal('stat-customers', overview.totalCustomers || 0);
+      setVal('stat-low-stock', overview.lowStockCount || 0);
 
       const recentOrdersBody = document.getElementById('admin-recent-orders-table');
       if (recentOrdersBody && recentOrders) {
@@ -124,7 +149,7 @@ window.updateOrderStatus = async function(orderId, newStatus) {
   }
 };
 
-async function loadInventory() {
+window.loadInventory = async function() {
   const container = document.getElementById('admin-inventory-table');
   if (!container) return;
 

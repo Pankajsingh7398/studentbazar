@@ -25,6 +25,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load orders
   loadUserOrders();
 
+  // Check if an order ID is in URL query parameters to auto-open tracking
+  const urlParams = new URLSearchParams(window.location.search);
+  const trackOrderId = urlParams.get('id');
+  if (trackOrderId) {
+    setTimeout(() => {
+      openOrderTracking(trackOrderId);
+    }, 400);
+  }
+
+  // Close tracking modal listener
+  document.getElementById('close-tracking-modal')?.addEventListener('click', () => {
+    closeTrackingModal();
+  });
+
   // Tab switching
   const tabs = document.querySelectorAll('.account-tab-btn');
   tabs.forEach(btn => {
@@ -43,6 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.AuthManager?.logout();
   });
 });
+
+let trackingPollInterval = null;
 
 async function loadUserOrders() {
   const container = document.getElementById('orders-list-container');
@@ -70,26 +86,29 @@ async function loadUserOrders() {
         });
 
         const statusBadgeColor = {
-          pending: 'bg-amber-100 text-amber-800',
-          confirmed: 'bg-sky-100 text-sky-800',
-          processing: 'bg-indigo-100 text-indigo-800',
-          shipped: 'bg-purple-100 text-purple-800',
-          delivered: 'bg-emerald-100 text-emerald-800',
-          cancelled: 'bg-rose-100 text-rose-800'
-        }[o.orderStatus] || 'bg-stone-100 text-stone-800';
+          pending: 'bg-amber-100 text-amber-800 border-amber-200',
+          confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
+          processing: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+          packed: 'bg-teal-100 text-teal-800 border-teal-200',
+          shipped: 'bg-purple-100 text-purple-800 border-purple-200',
+          out_for_delivery: 'bg-orange-100 text-orange-800 border-orange-200',
+          delivered: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          rejected: 'bg-rose-100 text-rose-800 border-rose-200',
+          cancelled: 'bg-zinc-100 text-zinc-800 border-zinc-200'
+        }[o.orderStatus] || 'bg-stone-100 text-stone-800 border-stone-200';
 
         const canCancel = ['pending', 'confirmed'].includes(o.orderStatus);
 
         return `
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-xs border border-surface-container space-y-3">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-surface-container">
+          <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-surface-container">
               <div>
                 <span class="font-label-lg text-label-lg text-primary font-bold">${o.orderNumber}</span>
                 <span class="text-body-sm text-on-surface-variant ml-2">• ${dateStr}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 rounded-full text-label-sm font-semibold uppercase tracking-wider ${statusBadgeColor}">
-                  ${o.orderStatus}
+                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${statusBadgeColor}">
+                  ${o.orderStatus.replace('_', ' ')}
                 </span>
                 <span class="text-label-sm font-label-sm text-on-surface-variant font-medium">
                   (${o.paymentMethod.toUpperCase()} • ${o.paymentStatus})
@@ -112,17 +131,21 @@ async function loadUserOrders() {
             </div>
 
             <!-- Total and Actions -->
-            <div class="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-surface-container">
+            <div class="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-surface-container">
               <div class="text-body-sm text-on-surface-variant">
                 <span>Deliver to: <strong>${o.shippingAddress.hostelOrBuilding}, ${o.shippingAddress.campusName}</strong></span>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="font-headline-sm text-headline-sm text-primary">
+              <div class="flex items-center gap-2.5">
+                <div class="font-headline-sm text-headline-sm text-primary mr-2">
                   Total: <span>₹${o.total}</span>
                 </div>
+                <button class="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary-container transition text-label-sm font-semibold flex items-center gap-1.5 shadow-xs" onclick="openOrderTracking('${o._id}')">
+                  <span class="material-symbols-outlined text-[16px]">timeline</span>
+                  <span>Track Order</span>
+                </button>
                 ${canCancel ? `
-                  <button class="px-3 py-1.5 rounded-lg border border-error text-error hover:bg-error hover:text-white transition text-label-sm font-label-sm" onclick="cancelCustomerOrder('${o._id}')">
-                    Cancel Order
+                  <button class="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 transition text-label-sm font-label-sm" onclick="cancelCustomerOrder('${o._id}')">
+                    Cancel
                   </button>
                 ` : ''}
               </div>
@@ -133,6 +156,147 @@ async function loadUserOrders() {
     }
   } catch (e) {
     console.error('[Orders] Failed to load', e);
+  }
+}
+
+window.openOrderTracking = async function (orderId) {
+  const modal = document.getElementById('tracking-modal');
+  if (!modal) return;
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+
+  // Initial fetch and render
+  await renderTrackingDetails(orderId);
+
+  // Clear existing polling timer
+  if (trackingPollInterval) clearInterval(trackingPollInterval);
+
+  // Auto-sync polling every 8 seconds while modal is open
+  trackingPollInterval = setInterval(() => {
+    if (modal.classList.contains('hidden')) {
+      clearInterval(trackingPollInterval);
+      return;
+    }
+    renderTrackingDetails(orderId, true);
+  }, 8000);
+};
+
+window.closeTrackingModal = function () {
+  const modal = document.getElementById('tracking-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  if (trackingPollInterval) {
+    clearInterval(trackingPollInterval);
+    trackingPollInterval = null;
+  }
+};
+
+async function renderTrackingDetails(orderId, isPolling = false) {
+  try {
+    const res = await window.apiRequest(`/orders/${orderId}/tracking`);
+    if (!res || !res.success || !res.data) return;
+
+    const { order, timeline, isCancelledOrRejected, negativeState, history } = res.data;
+
+    document.getElementById('modal-order-number').textContent = `Order ${order.orderNumber}`;
+
+    const badge = document.getElementById('modal-order-badge');
+    if (badge) {
+      badge.textContent = order.orderStatus.replace('_', ' ');
+      badge.className = `px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+        order.orderStatus === 'delivered' ? 'bg-emerald-100 text-emerald-800' :
+        order.orderStatus === 'rejected' || order.orderStatus === 'cancelled' ? 'bg-rose-100 text-rose-800' :
+        'bg-primary/10 text-primary'
+      }`;
+    }
+
+    // Courier banner
+    const courierBanner = document.getElementById('modal-courier-banner');
+    if (courierBanner) {
+      if (order.courierName || order.trackingNumber) {
+        courierBanner.classList.remove('hidden');
+        document.getElementById('modal-courier-name').textContent = order.courierName || 'Campus Express';
+        document.getElementById('modal-tracking-number').textContent = order.trackingNumber || 'Assigned';
+        const link = document.getElementById('modal-tracking-link');
+        if (order.trackingUrl) {
+          link.href = order.trackingUrl;
+          document.getElementById('modal-tracking-link-wrapper').classList.remove('hidden');
+        } else {
+          document.getElementById('modal-tracking-link-wrapper').classList.add('hidden');
+        }
+      } else {
+        courierBanner.classList.add('hidden');
+      }
+    }
+
+    // Terminal negative state banner
+    const negativeAlert = document.getElementById('modal-negative-alert');
+    if (negativeAlert) {
+      if (isCancelledOrRejected && negativeState) {
+        negativeAlert.classList.remove('hidden');
+        document.getElementById('modal-negative-title').textContent = `Order ${negativeState.status.toUpperCase()}`;
+        document.getElementById('modal-negative-reason').textContent = `Reason: ${negativeState.reason}`;
+        document.getElementById('modal-negative-time').textContent = negativeState.timestamp ? new Date(negativeState.timestamp).toLocaleString('en-IN') : '';
+      } else {
+        negativeAlert.classList.add('hidden');
+      }
+    }
+
+    // Render Stepper Timeline
+    const timelineContainer = document.getElementById('modal-timeline-container');
+    if (timelineContainer && Array.isArray(timeline)) {
+      timelineContainer.innerHTML = timeline.map(step => {
+        let iconMarkup = '';
+        let stepColor = 'text-on-surface-variant';
+        let circleBg = 'bg-surface-container border-2 border-outline-variant';
+
+        if (step.state === 'completed') {
+          circleBg = 'bg-emerald-600 text-white';
+          iconMarkup = '<span class="material-symbols-outlined text-[16px]">check</span>';
+          stepColor = 'text-primary font-bold';
+        } else if (step.state === 'current') {
+          circleBg = 'bg-primary text-white ring-4 ring-primary/20 animate-pulse';
+          iconMarkup = '<span class="material-symbols-outlined text-[16px]">radio_button_checked</span>';
+          stepColor = 'text-primary font-bold';
+        } else {
+          circleBg = 'bg-surface-container-low text-on-surface-variant border-2 border-surface-container';
+          iconMarkup = '<span class="material-symbols-outlined text-[14px]">circle</span>';
+        }
+
+        const dateFormatted = step.timestamp ? new Date(step.timestamp).toLocaleString('en-IN', {
+          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        }) : (step.state === 'upcoming' ? 'Pending next stage' : 'Completed');
+
+        return `
+          <div class="relative flex items-start gap-4">
+            <div class="absolute -left-[31px] w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 ${circleBg} shadow-xs">
+              ${iconMarkup}
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold ${stepColor}">${step.label}</h4>
+              <p class="text-[12px] text-on-surface-variant">${dateFormatted}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Audit trail logs
+    const auditContainer = document.getElementById('modal-audit-trail');
+    if (auditContainer && Array.isArray(history)) {
+      auditContainer.innerHTML = history.map(h => `
+        <div class="py-1 border-b border-surface-container last:border-0">
+          <span class="text-primary font-bold">[${new Date(h.createdAt).toLocaleTimeString('en-IN')}]</span>
+          <span>Status changed: <strong>${h.previousStatus || 'INIT'}</strong> → <strong class="text-primary">${h.newStatus}</strong></span>
+          <div class="text-on-surface-variant pl-2">${h.note || ''}</div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('[Tracking Fetch Error]:', err);
   }
 }
 
@@ -152,3 +316,4 @@ window.cancelCustomerOrder = async function (orderId) {
     window.showToast?.(err.message || 'Failed to cancel order.', 'error');
   }
 };
+

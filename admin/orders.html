@@ -62,27 +62,27 @@
       </div>
 
       <nav class="space-y-1.5 pt-4">
-        <a class="admin-nav-item" href="index.html">
+        <a class="admin-nav-item" href="/admin/">
           <span class="material-symbols-outlined text-[20px]">dashboard</span>
           <span>Overview</span>
         </a>
-        <a class="admin-nav-item" href="products.html">
+        <a class="admin-nav-item" href="/admin/products.html">
           <span class="material-symbols-outlined text-[20px]">menu_book</span>
           <span>Products</span>
         </a>
-        <a class="admin-nav-item active" href="orders.html">
+        <a class="admin-nav-item active" href="/admin/orders.html">
           <span class="material-symbols-outlined text-[20px]">local_shipping</span>
           <span>Orders</span>
         </a>
-        <a class="admin-nav-item" href="customers.html">
+        <a class="admin-nav-item" href="/admin/customers.html">
           <span class="material-symbols-outlined text-[20px]">group</span>
           <span>Customers</span>
         </a>
-        <a class="admin-nav-item" href="inventory.html">
+        <a class="admin-nav-item" href="/admin/inventory.html">
           <span class="material-symbols-outlined text-[20px]">inventory_2</span>
           <span>Inventory</span>
         </a>
-        <a class="admin-nav-item" href="../index.html">
+        <a class="admin-nav-item" href="/">
           <span class="material-symbols-outlined text-[20px]">storefront</span>
           <span>Public Storefront</span>
         </a>
@@ -105,46 +105,180 @@
   <main class="flex-1 p-6 sm:p-10 overflow-y-auto space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Dispatches &amp; Orders</h1>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Real-time status tracking for hostel room deliveries and payment states.</p>
+        <h1 class="font-headline-lg text-headline-lg text-primary font-serif">Campus Order Management</h1>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Review new orders, confirm fulfillment, track couriers, and inspect WhatsApp delivery logs.</p>
       </div>
 
-      <!-- Filter Controls -->
-      <div class="flex items-center gap-2">
-        <select id="orders-status-filter" class="px-3 py-2 bg-surface-container-low rounded-xl text-body-sm font-label-md border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending</option>
+      <!-- Action Refresh -->
+      <button onclick="loadAdminOrdersWithFilter()" class="px-4 py-2 bg-surface-container hover:bg-surface-container-high transition rounded-xl flex items-center gap-2 text-label-sm font-semibold self-start sm:self-auto">
+        <span class="material-symbols-outlined text-[18px]">refresh</span>
+        <span>Refresh Orders</span>
+      </button>
+    </div>
+
+    <!-- Filter and Search Bar -->
+    <div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-container shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Search Input -->
+      <div class="relative w-full md:w-80">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+        <input id="orders-search-input" type="text" placeholder="Search Order #, phone, scholar..." class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary"/>
+      </div>
+
+      <!-- Status Filter Tabs / Select -->
+      <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+        <label for="orders-status-filter" class="text-xs text-on-surface-variant font-semibold whitespace-nowrap">Status Filter:</label>
+        <select id="orders-status-filter" class="px-3 py-2 bg-surface-container-low rounded-xl text-body-sm font-semibold border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary">
+          <option value="all">All Orders</option>
+          <option value="pending">Pending Confirmation</option>
           <option value="confirmed">Confirmed</option>
           <option value="processing">Processing</option>
+          <option value="packed">Packed</option>
           <option value="shipped">Shipped</option>
+          <option value="out_for_delivery">Out for Delivery</option>
           <option value="delivered">Delivered</option>
+          <option value="rejected">Rejected</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <button onclick="loadAdminOrdersWithFilter()" class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high transition">
-          <span class="material-symbols-outlined text-[20px]">refresh</span>
-        </button>
       </div>
     </div>
 
-    <!-- Orders Table -->
-    <div class="admin-table-container">
-      <table class="admin-table">
-        <thead>
+    <!-- Orders Table Container -->
+    <div class="admin-table-container bg-surface-container-lowest rounded-2xl border border-surface-container shadow-xs overflow-hidden">
+      <table class="admin-table w-full text-left">
+        <thead class="bg-surface-container-low border-b border-surface-container text-xs text-on-surface-variant uppercase tracking-wider">
           <tr>
-            <th>Order ID</th>
-            <th>Scholar Customer</th>
-            <th>Campus Destination</th>
-            <th>Payment</th>
-            <th>Amount</th>
-            <th>Fulfillment Status</th>
+            <th class="py-3.5 px-4">Order # &amp; Date</th>
+            <th class="py-3.5 px-4">Scholar &amp; WhatsApp</th>
+            <th class="py-3.5 px-4">Campus Destination</th>
+            <th class="py-3.5 px-4">Total &amp; Payment</th>
+            <th class="py-3.5 px-4">Current Status</th>
+            <th class="py-3.5 px-4 text-right">Workflow Actions</th>
           </tr>
         </thead>
-        <tbody id="admin-all-orders-table">
-          <tr><td colspan="6" class="text-center py-8 text-on-surface-variant">Loading orders...</td></tr>
+        <tbody id="admin-all-orders-table" class="divide-y divide-surface-container">
+          <tr><td colspan="6" class="text-center py-10 text-on-surface-variant">Loading campus orders...</td></tr>
         </tbody>
       </table>
     </div>
   </main>
+
+  <!-- Ship Order Modal -->
+  <div id="ship-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-4 border border-surface-container shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+        <h3 class="font-headline-sm text-headline-sm text-primary font-serif">Ship Order</h3>
+        <button onclick="closeShipModal()" class="text-on-surface-variant hover:text-primary p-1">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+      <p class="text-xs text-on-surface-variant">Provide courier logistics before notifying the customer via WhatsApp.</p>
+
+      <form id="ship-form" class="space-y-3">
+        <input type="hidden" id="ship-order-id"/>
+        <div class="form-group">
+          <label class="form-label" for="ship-courier-name">Courier Partner</label>
+          <input id="ship-courier-name" type="text" required class="form-input" placeholder="e.g. Delhivery / Bluedart / Campus Express" value="Campus Express"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ship-tracking-number">Tracking Number / AWB</label>
+          <input id="ship-tracking-number" type="text" required class="form-input" placeholder="e.g. AWB-9876543210"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ship-tracking-url">Tracking URL (Optional)</label>
+          <input id="ship-tracking-url" type="url" class="form-input" placeholder="https://track.courier.com/..."/>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeShipModal()" class="flex-1 py-2.5 bg-surface-container rounded-xl text-label-sm font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-primary text-on-primary rounded-xl text-label-sm font-semibold hover:bg-primary-container transition">Confirm Shipment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reject Order Modal -->
+  <div id="reject-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-4 border border-surface-container shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+        <h3 class="font-headline-sm text-headline-sm text-rose-800 font-serif">Reject Order</h3>
+        <button onclick="closeRejectModal()" class="text-on-surface-variant hover:text-primary p-1">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+      <p class="text-xs text-on-surface-variant">Rejection will restore product inventory and dispatch an explanation to the customer via WhatsApp.</p>
+
+      <form id="reject-form" class="space-y-3">
+        <input type="hidden" id="reject-order-id"/>
+        <div class="form-group">
+          <label class="form-label" for="reject-reason">Rejection Reason</label>
+          <textarea id="reject-reason" required rows="3" class="form-input" placeholder="e.g. Selected campus address is outside our delivery zone."></textarea>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeRejectModal()" class="flex-1 py-2.5 bg-surface-container rounded-xl text-label-sm font-semibold">Keep Order</button>
+          <button type="submit" class="flex-1 py-2.5 bg-rose-700 text-white rounded-xl text-label-sm font-semibold hover:bg-rose-800 transition">Confirm Rejection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Details & WhatsApp Logs Modal -->
+  <div id="details-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest max-w-3xl w-full rounded-3xl p-6 sm:p-8 space-y-6 border border-surface-container shadow-2xl my-8 relative">
+      <button onclick="closeDetailsModal()" class="absolute top-6 right-6 text-on-surface-variant hover:text-primary p-1.5 rounded-full hover:bg-surface-container transition">
+        <span class="material-symbols-outlined text-[24px]">close</span>
+      </button>
+
+      <div>
+        <span class="text-xs font-bold text-secondary uppercase tracking-widest">Order Details &amp; Notification Audit</span>
+        <h2 id="modal-detail-title" class="font-headline-md text-headline-md text-primary font-serif">Order #SB-0000</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-surface-container-low p-4 rounded-2xl">
+        <div>
+          <span class="text-on-surface-variant block">Customer Information:</span>
+          <strong id="modal-detail-customer" class="text-primary font-semibold text-sm">Rahul Sharma</strong>
+          <div id="modal-detail-phone" class="text-on-surface">Phone: 9876543210</div>
+          <div id="modal-detail-whatsapp" class="text-on-surface">WhatsApp: 9876543210</div>
+        </div>
+        <div>
+          <span class="text-on-surface-variant block">Delivery Address:</span>
+          <div id="modal-detail-address" class="text-primary font-medium">Tagore Hostel, Room 204, DU</div>
+          <div id="modal-detail-payment" class="mt-1 font-semibold">Payment: COD (pending)</div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Delivery Logs Table -->
+      <div class="space-y-2">
+        <h4 class="font-bold text-primary text-sm flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-emerald-600 text-[18px]">chat</span>
+          <span>WhatsApp Notification Logs</span>
+        </h4>
+        <div class="bg-surface-container-low rounded-xl border border-surface-container overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-surface-container border-b border-surface-container text-on-surface-variant uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="py-2 px-3">Type</th>
+                <th class="py-2 px-3">Recipient</th>
+                <th class="py-2 px-3">Status</th>
+                <th class="py-2 px-3">Provider ID</th>
+                <th class="py-2 px-3">Sent Time</th>
+              </tr>
+            </thead>
+            <tbody id="modal-whatsapp-logs-body" class="divide-y divide-surface-container">
+              <tr><td colspan="5" class="text-center py-4 text-on-surface-variant">No notifications recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Status Transition History -->
+      <div class="space-y-2">
+        <h4 class="font-bold text-primary text-sm">Status Progression History</h4>
+        <div id="modal-detail-history" class="space-y-1.5 font-mono text-xs max-h-36 overflow-y-auto bg-surface-container-low p-3 rounded-xl">
+          <!-- History -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification -->
   <div class="fixed top-24 right-6 z-50 transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toast">
@@ -165,53 +299,271 @@
       }, 2800);
     };
 
+    // Modal helpers
+    function openShipModal(orderId, orderNumber) {
+      document.getElementById('ship-order-id').value = orderId;
+      document.getElementById('ship-tracking-number').value = `TRK-${orderNumber.replace(/[^0-9]/g, '') || Date.now().toString().slice(-6)}`;
+      const m = document.getElementById('ship-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeShipModal() {
+      const m = document.getElementById('ship-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function openRejectModal(orderId, orderNumber) {
+      document.getElementById('reject-order-id').value = orderId;
+      const m = document.getElementById('reject-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeRejectModal() {
+      const m = document.getElementById('reject-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function closeDetailsModal() {
+      const m = document.getElementById('details-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    async function viewOrderDetails(orderId) {
+      const modal = document.getElementById('details-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      try {
+        const res = await window.apiRequest(`/admin/orders/${orderId}`);
+        if (res && res.success && res.data) {
+          const { order, history, notificationLogs } = res.data;
+
+          document.getElementById('modal-detail-title').textContent = `Order ${order.orderNumber}`;
+          document.getElementById('modal-detail-customer').textContent = order.user?.name || order.customerSnapshot?.name || 'Customer';
+          document.getElementById('modal-detail-phone').textContent = `Phone: ${order.user?.phone || order.customerSnapshot?.phone || 'N/A'}`;
+          document.getElementById('modal-detail-whatsapp').textContent = `WhatsApp: ${order.whatsappNumber || 'N/A'} (Opt-In: ${order.whatsappOptIn ? 'YES' : 'NO'})`;
+          document.getElementById('modal-detail-address').textContent = `${order.shippingAddress?.hostelOrBuilding || ''}, ${order.shippingAddress?.campusName || ''}`;
+          document.getElementById('modal-detail-payment').textContent = `Payment: ${order.paymentMethod.toUpperCase()} (${order.paymentStatus})`;
+
+          // WhatsApp Logs Table
+          const logsBody = document.getElementById('modal-whatsapp-logs-body');
+          if (notificationLogs && notificationLogs.length > 0) {
+            logsBody.innerHTML = notificationLogs.map(l => `
+              <tr class="hover:bg-surface-container transition">
+                <td class="py-2 px-3 font-semibold text-primary">${l.notificationType}</td>
+                <td class="py-2 px-3">${l.recipient} (${l.recipientType})</td>
+                <td class="py-2 px-3">
+                  <span class="px-2 py-0.5 rounded font-bold text-[10px] ${
+                    l.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-800' :
+                    l.status === 'SENT' ? 'bg-blue-100 text-blue-800' :
+                    l.status === 'FAILED' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                  }">${l.status}</span>
+                </td>
+                <td class="py-2 px-3 font-mono text-[10px] text-on-surface-variant">${l.providerMessageId ? l.providerMessageId.slice(0, 15) + '...' : 'Simulated'}</td>
+                <td class="py-2 px-3 text-[11px] text-on-surface-variant">${new Date(l.createdAt).toLocaleTimeString('en-IN')}</td>
+              </tr>
+            `).join('');
+          } else {
+            logsBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-on-surface-variant">No notifications recorded yet.</td></tr>';
+          }
+
+          // History
+          const historyBody = document.getElementById('modal-detail-history');
+          if (history && history.length > 0) {
+            historyBody.innerHTML = history.map(h => `
+              <div class="py-1 border-b border-surface-container last:border-0">
+                [${new Date(h.createdAt).toLocaleTimeString('en-IN')}] <strong>${h.previousStatus || 'INIT'}</strong> → <strong class="text-primary">${h.newStatus}</strong> by ${h.changedByName}: ${h.note || ''}
+              </div>
+            `).join('');
+          } else {
+            historyBody.innerHTML = '<div>No status changes recorded.</div>';
+          }
+        }
+      } catch (err) {
+        console.error('[Admin Order Details] Fetch error:', err);
+      }
+    }
+
     async function loadAdminOrdersWithFilter() {
       const filter = document.getElementById('orders-status-filter').value;
+      const search = document.getElementById('orders-search-input')?.value.trim();
       const tableBody = document.getElementById('admin-all-orders-table');
       if (!tableBody) return;
 
       try {
-        const url = filter === 'all' ? '/admin/orders' : `/admin/orders?status=${filter}`;
-        const res = await window.apiRequest(url);
+        let queryParams = [];
+        if (filter && filter !== 'all') queryParams.push(`status=${filter}`);
+        if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
+        const qStr = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+        const res = await window.apiRequest(`/admin/orders${qStr}`);
         if (res && res.success && res.data.orders) {
           if (res.data.orders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-on-surface-variant">No orders match this status.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-on-surface-variant">No orders match this filter.</td></tr>';
             return;
           }
-          tableBody.innerHTML = res.data.orders.map(o => `
-            <tr class="border-b border-surface-container hover:bg-surface-container-low transition">
-              <td class="py-3 px-4 font-label-md text-primary font-bold">${o.orderNumber}</td>
-              <td class="py-3 px-4 text-body-sm">
-                <div class="font-semibold">${o.user?.name || 'Guest Scholar'}</div>
-                <div class="text-[11px] text-on-surface-variant">${o.user?.email || 'N/A'}</div>
-              </td>
-              <td class="py-3 px-4 text-body-sm text-on-surface-variant">
-                ${o.shippingAddress?.hostelOrBuilding || 'Room 101'}, ${o.shippingAddress?.campusName || 'Main Campus'}
-              </td>
-              <td class="py-3 px-4 text-body-sm">
-                <span class="font-mono text-[11px] uppercase px-2 py-0.5 rounded bg-surface-container font-semibold">${o.paymentMethod}</span>
-                <span class="block text-[11px] text-on-surface-variant">(${o.paymentStatus})</span>
-              </td>
-              <td class="py-3 px-4 font-currency-md text-primary font-bold">₹${o.total}</td>
-              <td class="py-3 px-4">
-                <select class="px-2.5 py-1 bg-surface-container rounded-lg font-label-sm text-primary border border-outline-variant focus:outline-none" onchange="window.updateOrderStatus('${o._id}', this.value)">
-                  ${['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map(st => `
-                    <option value="${st}" ${st === o.orderStatus ? 'selected' : ''}>${st.toUpperCase()}</option>
-                  `).join('')}
-                </select>
-              </td>
-            </tr>
-          `).join('');
+
+          tableBody.innerHTML = res.data.orders.map(o => {
+            const dateStr = new Date(o.createdAt).toLocaleDateString('en-IN', {
+              day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+            });
+
+            const statusColors = {
+              pending: 'bg-amber-100 text-amber-800 border border-amber-300',
+              confirmed: 'bg-blue-100 text-blue-800 border border-blue-300',
+              processing: 'bg-indigo-100 text-indigo-800 border border-indigo-300',
+              packed: 'bg-teal-100 text-teal-800 border border-teal-300',
+              shipped: 'bg-purple-100 text-purple-800 border border-purple-300',
+              out_for_delivery: 'bg-orange-100 text-orange-800 border border-orange-300',
+              delivered: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+              rejected: 'bg-rose-100 text-rose-800 border border-rose-300',
+              cancelled: 'bg-stone-100 text-stone-800 border border-stone-300'
+            }[o.orderStatus] || 'bg-stone-100 text-stone-800';
+
+            // Generate contextual action buttons strictly aligned with lifecycle
+            let actionButtons = '';
+            if (o.orderStatus === 'pending') {
+              actionButtons = `
+                <button onclick="performStatusTransition('${o._id}', 'confirmed')" class="px-2.5 py-1 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition shadow-xs">Confirm</button>
+                <button onclick="openRejectModal('${o._id}', '${o.orderNumber}')" class="px-2.5 py-1 bg-rose-100 text-rose-800 border border-rose-300 rounded-lg text-xs font-semibold hover:bg-rose-200 transition">Reject</button>
+              `;
+            } else if (o.orderStatus === 'confirmed') {
+              actionButtons = `
+                <button onclick="performStatusTransition('${o._id}', 'processing')" class="px-2.5 py-1 bg-indigo-700 text-white rounded-lg text-xs font-semibold hover:bg-indigo-800 transition shadow-xs">Start Processing</button>
+                <button onclick="performCancelOrder('${o._id}')" class="px-2.5 py-1 border border-stone-300 text-stone-700 rounded-lg text-xs font-semibold hover:bg-stone-100 transition">Cancel</button>
+              `;
+            } else if (o.orderStatus === 'processing') {
+              actionButtons = `
+                <button onclick="performStatusTransition('${o._id}', 'packed')" class="px-2.5 py-1 bg-teal-700 text-white rounded-lg text-xs font-semibold hover:bg-teal-800 transition shadow-xs">Mark Packed</button>
+                <button onclick="performCancelOrder('${o._id}')" class="px-2.5 py-1 border border-stone-300 text-stone-700 rounded-lg text-xs font-semibold hover:bg-stone-100 transition">Cancel</button>
+              `;
+            } else if (o.orderStatus === 'packed') {
+              actionButtons = `
+                <button onclick="openShipModal('${o._id}', '${o.orderNumber}')" class="px-2.5 py-1 bg-purple-700 text-white rounded-lg text-xs font-semibold hover:bg-purple-800 transition shadow-xs">Ship Order</button>
+                <button onclick="performCancelOrder('${o._id}')" class="px-2.5 py-1 border border-stone-300 text-stone-700 rounded-lg text-xs font-semibold hover:bg-stone-100 transition">Cancel</button>
+              `;
+            } else if (o.orderStatus === 'shipped') {
+              actionButtons = `
+                <button onclick="performStatusTransition('${o._id}', 'out_for_delivery')" class="px-2.5 py-1 bg-orange-600 text-white rounded-lg text-xs font-semibold hover:bg-orange-700 transition shadow-xs">Out for Delivery</button>
+              `;
+            } else if (o.orderStatus === 'out_for_delivery') {
+              actionButtons = `
+                <button onclick="performStatusTransition('${o._id}', 'delivered')" class="px-2.5 py-1 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition shadow-xs">Mark Delivered</button>
+              `;
+            } else {
+              actionButtons = `<span class="text-xs text-on-surface-variant font-mono">Terminal State</span>`;
+            }
+
+            return `
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-3 px-4 font-label-md text-primary font-bold">
+                  <div>${o.orderNumber}</div>
+                  <div class="text-[11px] text-on-surface-variant font-normal">${dateStr}</div>
+                </td>
+                <td class="py-3 px-4 text-body-sm">
+                  <div class="font-semibold text-primary">${o.user?.name || o.customerSnapshot?.name || 'Customer'}</div>
+                  <div class="text-[11px] text-on-surface-variant">${o.user?.phone || o.customerSnapshot?.phone || 'N/A'}</div>
+                  <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">chat</span>
+                    <span>${o.whatsappNumber || 'Same'}</span>
+                  </div>
+                </td>
+                <td class="py-3 px-4 text-body-sm text-on-surface-variant max-w-xs truncate">
+                  ${o.shippingAddress?.hostelOrBuilding || 'Room 101'}, ${o.shippingAddress?.campusName || 'Campus'}
+                </td>
+                <td class="py-3 px-4 text-body-sm">
+                  <div class="font-bold text-primary">₹${o.total}</div>
+                  <div class="text-[11px] uppercase text-on-surface-variant">${o.paymentMethod} (${o.paymentStatus})</div>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusColors}">
+                    ${o.orderStatus.replace('_', ' ')}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                    ${actionButtons}
+                    <button onclick="viewOrderDetails('${o._id}')" class="p-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary transition" title="View details and WhatsApp logs">
+                      <span class="material-symbols-outlined text-[16px]">info</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
         }
       } catch (e) {
         console.error('[Admin Orders] Error', e);
       }
     }
 
+    async function performStatusTransition(orderId, nextStatus, extraPayload = {}) {
+      try {
+        const res = await window.apiRequest(`/admin/orders/${orderId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: nextStatus, ...extraPayload })
+        });
+        if (res && res.success) {
+          window.showToast(`Order updated to "${nextStatus.toUpperCase()}"! WhatsApp notification dispatched.`, 'check_circle');
+          loadAdminOrdersWithFilter();
+        }
+      } catch (err) {
+        window.showToast(err.message || 'Status transition failed.', 'error');
+      }
+    }
+
+    async function performCancelOrder(orderId) {
+      const reason = prompt('Please enter cancellation reason:');
+      if (!reason) return;
+      performStatusTransition(orderId, 'cancelled', { cancellationReason: reason });
+    }
+
+    // Ship form submit handler
+    document.getElementById('ship-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('ship-order-id').value;
+      const courierName = document.getElementById('ship-courier-name').value.trim();
+      const trackingNumber = document.getElementById('ship-tracking-number').value.trim();
+      const trackingUrl = document.getElementById('ship-tracking-url').value.trim();
+
+      if (!courierName || !trackingNumber) {
+        window.showToast('Courier partner and tracking number are required.', 'warning');
+        return;
+      }
+
+      await performStatusTransition(orderId, 'shipped', { courierName, trackingNumber, trackingUrl: trackingUrl || undefined });
+      closeShipModal();
+    });
+
+    // Reject form submit handler
+    document.getElementById('reject-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('reject-order-id').value;
+      const rejectionReason = document.getElementById('reject-reason').value.trim();
+
+      if (!rejectionReason) {
+        window.showToast('Please provide a rejection reason.', 'warning');
+        return;
+      }
+
+      await performStatusTransition(orderId, 'rejected', { rejectionReason });
+      closeRejectModal();
+    });
+
+    // Search and filter listeners
     document.addEventListener('DOMContentLoaded', () => {
       loadAdminOrdersWithFilter();
       document.getElementById('orders-status-filter')?.addEventListener('change', loadAdminOrdersWithFilter);
+      let searchTimeout = null;
+      document.getElementById('orders-search-input')?.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadAdminOrdersWithFilter, 300);
+      });
     });
   </script>
 </body>
 </html>
+

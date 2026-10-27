@@ -6,9 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load .env and .env.local from server directory or root directory
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
+dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: true });
+dotenv.config({ path: path.resolve(__dirname, '../../.env.local'), override: true });
 
 import app from './app.js';
 import { connectDB } from './config/database.js';

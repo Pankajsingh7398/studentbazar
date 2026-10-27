@@ -42,6 +42,18 @@ const userSchema = new Schema({
     type: String,
     trim: true
   },
+  whatsappNumber: {
+    type: String,
+    trim: true
+  },
+  whatsappOptIn: {
+    type: Boolean,
+    default: true
+  },
+  adminPasskeyHash: {
+    type: String,
+    select: false
+  },
   role: {
     type: String,
     enum: ['customer', 'admin'],

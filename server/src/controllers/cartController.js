@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Cart } from '../models/Cart.js';
 import { Product } from '../models/Product.js';
 import { ApiResponse } from '../utils/apiResponse.js';
@@ -14,10 +15,51 @@ export const computeTotals = async (cartItems) => {
   const validatedItems = [];
 
   for (const item of cartItems) {
-    const product = item.product || await Product.findById(item.productId);
-    if (!product || !product.isActive) continue;
+    let product = item.product;
+    const candidateId = item.productId || item.id || item._id;
 
-    const qty = Math.max(1, Math.min(item.quantity, product.stock));
+    if (!product && candidateId) {
+      if (mongoose.Types.ObjectId.isValid(candidateId)) {
+        product = await Product.findById(candidateId);
+      }
+      if (!product) {
+        product = await Product.findOne({
+          $or: [
+            { slug: candidateId },
+            { SKU: candidateId },
+            { name: item.name ? new RegExp('^' + item.name.trim() + '$', 'i') : '' }
+          ]
+        });
+      }
+    }
+
+    if (!product && item.name) {
+      product = await Product.findOne({ name: new RegExp(item.name.trim(), 'i') });
+    }
+
+    if (!product || !product.isActive) {
+      // Fallback for items with price/name directly passed if not in DB
+      if (item.name && item.price) {
+        const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+        const lineTotal = Number(item.price) * qty;
+        subtotal += lineTotal;
+        validatedItems.push({
+          productId: candidateId || 'item-' + Date.now(),
+          name: item.name,
+          slug: item.slug || 'item',
+          SKU: item.SKU || 'SKU-CUSTOM',
+          price: Number(item.price),
+          compareAtPrice: item.compareAtPrice || item.price,
+          mockupStyle: item.mockupStyle || item.img || 'bg-stone-800 text-stone-100',
+          stock: 999,
+          quantity: qty,
+          lineTotal
+        });
+      }
+      continue;
+    }
+
+    const qty = Math.max(1, Math.min(item.quantity || 1, product.stock));
     const lineTotal = product.price * qty;
     subtotal += lineTotal;
 
@@ -73,11 +115,28 @@ export const getCart = asyncHandler(async (req, res) => {
 export const addItem = asyncHandler(async (req, res) => {
   const { productId, quantity = 1 } = req.body;
 
-  if (!productId) {
-    throw new ApiError(400, 'Product ID is required.');
+  const candidateId = productId || req.body.id || req.body._id;
+  if (!candidateId && !req.body.name) {
+    throw new ApiError(400, 'Product ID or name is required.');
   }
 
-  const product = await Product.findById(productId);
+  let product = null;
+  if (candidateId && mongoose.Types.ObjectId.isValid(candidateId)) {
+    product = await Product.findById(candidateId);
+  }
+  if (!product && candidateId) {
+    product = await Product.findOne({
+      $or: [
+        { slug: candidateId },
+        { SKU: candidateId },
+        { name: new RegExp('^' + String(candidateId).trim() + '$', 'i') }
+      ]
+    });
+  }
+  if (!product && req.body.name) {
+    product = await Product.findOne({ name: new RegExp(req.body.name.trim(), 'i') });
+  }
+
   if (!product || !product.isActive) {
     throw new ApiError(404, 'Product not found or inactive.');
   }
@@ -88,13 +147,15 @@ export const addItem = asyncHandler(async (req, res) => {
   }
 
   const existingItemIndex = userCart.items.findIndex(
-    item => item.product.toString() === productId
+    item => item.product.toString() === product._id.toString()
   );
 
+  const addQty = Math.max(1, parseInt(quantity, 10) || 1);
+
   if (existingItemIndex > -1) {
-    userCart.items[existingItemIndex].quantity += Number(quantity);
+    userCart.items[existingItemIndex].quantity += addQty;
   } else {
-    userCart.items.push({ product: productId, quantity: Number(quantity) });
+    userCart.items.push({ product: product._id, quantity: addQty });
   }
 
   await userCart.save();
@@ -159,15 +220,39 @@ export const syncCart = asyncHandler(async (req, res) => {
 
   // Merge items from guest local cart
   for (const guestItem of items) {
+    const candidateId = guestItem.productId || guestItem.id || guestItem._id;
+    let product = null;
+
+    if (candidateId && mongoose.Types.ObjectId.isValid(candidateId)) {
+      product = await Product.findById(candidateId);
+    }
+    if (!product && candidateId) {
+      product = await Product.findOne({
+        $or: [
+          { slug: candidateId },
+          { SKU: candidateId },
+          { name: guestItem.name ? new RegExp('^' + guestItem.name.trim() + '$', 'i') : '' }
+        ]
+      });
+    }
+    if (!product && guestItem.name) {
+      product = await Product.findOne({ name: new RegExp(guestItem.name.trim(), 'i') });
+    }
+
+    if (!product || !product.isActive) continue;
+
     const existing = userCart.items.find(
-      i => i.product.toString() === guestItem.productId
+      i => i.product.toString() === product._id.toString()
     );
+
+    const qty = Math.max(1, parseInt(guestItem.quantity, 10) || 1);
+
     if (existing) {
-      existing.quantity = Math.max(existing.quantity, guestItem.quantity);
-    } else if (guestItem.productId) {
+      existing.quantity = Math.max(existing.quantity, qty);
+    } else {
       userCart.items.push({
-        product: guestItem.productId,
-        quantity: guestItem.quantity || 1
+        product: product._id,
+        quantity: qty
       });
     }
   }

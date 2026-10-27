@@ -30,10 +30,34 @@ const CartManager = (function () {
   }
 
   async function fetchCart() {
+    const localItems = loadLocalCart();
+
     if (window.AuthManager?.isAuthenticated()) {
       try {
+        if (localItems && localItems.length > 0) {
+          try {
+            await syncWithServer();
+          } catch (syncErr) {
+            console.warn('[Cart] Sync error during fetch:', syncErr);
+          }
+        }
+
         const res = await window.apiRequest('/cart');
-        if (res && res.success && res.data) {
+        if (res && res.success && res.data && res.data.items && res.data.items.length > 0) {
+          cartData = res.data;
+          updateCartUI();
+          return cartData;
+        } else if (localItems && localItems.length > 0) {
+          const calcRes = await window.apiRequest('/cart/calculate', {
+            method: 'POST',
+            body: JSON.stringify({ items: localItems })
+          });
+          if (calcRes && calcRes.success && calcRes.data) {
+            cartData = calcRes.data;
+            updateCartUI();
+            return cartData;
+          }
+        } else if (res && res.success && res.data) {
           cartData = res.data;
           updateCartUI();
           return cartData;
@@ -44,7 +68,6 @@ const CartManager = (function () {
     }
 
     // Guest fallback
-    const localItems = loadLocalCart();
     if (localItems.length > 0) {
       try {
         const res = await window.apiRequest('/cart/calculate', {
@@ -85,10 +108,22 @@ const CartManager = (function () {
       try {
         const res = await window.apiRequest('/cart/items', {
           method: 'POST',
-          body: JSON.stringify({ productId: pId, quantity })
+          body: JSON.stringify({
+            productId: pId,
+            name: product.name,
+            price: product.price,
+            quantity
+          })
         });
         if (res && res.success && res.data) {
           cartData = res.data;
+          // Also persist in local for offline resilience
+          const localItems = loadLocalCart();
+          const existing = localItems.find(i => (i.productId === pId || i.id === pId));
+          if (existing) { existing.quantity += quantity; }
+          else { localItems.push({ productId: pId, id: pId, name: product.name, price: product.price, quantity, mockupStyle: product.mockupStyle || product.img }); }
+          saveLocalCart(localItems);
+
           updateCartUI();
           window.showToast?.(`${product.name || 'Notebook'} added to study kit!`);
           openDrawer();
@@ -251,6 +286,7 @@ const CartManager = (function () {
     if (totalElem) totalElem.textContent = `₹${cartData.total || 0}`;
 
     renderCartItems();
+    renderCartPage();
   }
 
   function renderCartItems() {
@@ -306,6 +342,71 @@ const CartManager = (function () {
     }).join('');
   }
 
+  function renderCartPage() {
+    const pageContainer = document.getElementById('cart-page-items-container');
+    const emptyState = document.getElementById('cart-page-empty');
+    const contentGrid = document.getElementById('cart-page-content');
+    if (!pageContainer) return;
+
+    if (!cartData.items || cartData.items.length === 0) {
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (contentGrid) contentGrid.classList.add('hidden');
+      return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+    if (contentGrid) contentGrid.classList.remove('hidden');
+
+    const itemCountElem = document.getElementById('cart-page-item-count');
+    if (itemCountElem) itemCountElem.textContent = `${cartData.itemCount || 0} items`;
+
+    const subtotalElem = document.getElementById('cart-page-subtotal');
+    if (subtotalElem) subtotalElem.textContent = `₹${cartData.subtotal || 0}`;
+
+    const shippingElem = document.getElementById('cart-page-shipping');
+    if (shippingElem) shippingElem.textContent = cartData.shippingFee === 0 ? 'FREE' : `₹${cartData.shippingFee}`;
+
+    const discountElem = document.getElementById('cart-page-discount');
+    if (discountElem) discountElem.textContent = cartData.discount > 0 ? `-₹${cartData.discount}` : '₹0';
+
+    const totalElem = document.getElementById('cart-page-total');
+    if (totalElem) totalElem.textContent = `₹${cartData.total || 0}`;
+
+    pageContainer.innerHTML = cartData.items.map(item => {
+      const id = item.productId || item._id || item.id;
+      const mockupClass = item.mockupStyle || 'bg-[#1C3627] text-amber-200';
+      return `
+        <div class="flex items-center gap-4 py-4" data-id="${id}">
+          <div class="w-16 h-20 rounded-lg ${mockupClass} flex items-center justify-center flex-shrink-0 shadow-xs font-mono text-[10px] p-1 text-center font-bold">
+            NOTE
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-label-lg text-label-lg text-primary truncate font-semibold">${item.name}</h4>
+            <div class="font-currency-md text-currency-md text-primary mt-0.5">₹${item.price} each</div>
+            <div class="flex items-center gap-4 mt-2">
+              <div class="flex items-center bg-surface-container-highest rounded-lg overflow-hidden">
+                <button class="cart-qty-btn w-8 h-8 flex items-center justify-center hover:bg-surface-variant text-primary transition" data-action="decrease" data-id="${id}" aria-label="Decrease quantity">
+                  <span class="material-symbols-outlined text-[16px]">remove</span>
+                </button>
+                <span class="w-8 text-center font-label-md text-primary font-bold">${item.quantity}</span>
+                <button class="cart-qty-btn w-8 h-8 flex items-center justify-center hover:bg-surface-variant text-primary transition" data-action="increase" data-id="${id}" aria-label="Increase quantity">
+                  <span class="material-symbols-outlined text-[16px]">add</span>
+                </button>
+              </div>
+              <button class="cart-remove-btn text-on-surface-variant hover:text-error text-body-sm flex items-center gap-1 transition" data-id="${id}">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="font-currency-lg text-primary font-bold text-[18px]">₹${item.price * item.quantity}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function openDrawer() {
     const drawer = document.getElementById('cart-drawer');
     const backdrop = document.getElementById('cart-drawer-backdrop');
@@ -329,7 +430,7 @@ const CartManager = (function () {
     document.body.classList.remove('cart-open');
   }
 
-  // Setup cart drawer event bindings
+  // Setup cart drawer and page bindings
   document.addEventListener('DOMContentLoaded', () => {
     fetchCart();
 
@@ -344,32 +445,30 @@ const CartManager = (function () {
       });
     }
 
-    const cartContainer = document.getElementById('cart-items-container');
-    if (cartContainer) {
-      cartContainer.addEventListener('click', (e) => {
-        const qtyBtn = e.target.closest('.cart-qty-btn');
-        if (qtyBtn) {
-          const action = qtyBtn.getAttribute('data-action');
-          const id = qtyBtn.getAttribute('data-id');
-          updateQuantity(id, action === 'increase' ? 1 : -1);
-          return;
-        }
+    // Delegated actions for quantity and removal
+    document.addEventListener('click', (e) => {
+      const qtyBtn = e.target.closest('.cart-qty-btn');
+      if (qtyBtn) {
+        const action = qtyBtn.getAttribute('data-action');
+        const id = qtyBtn.getAttribute('data-id');
+        updateQuantity(id, action === 'increase' ? 1 : -1);
+        return;
+      }
 
-        const removeBtn = e.target.closest('.cart-remove-btn');
-        if (removeBtn) {
-          const id = removeBtn.getAttribute('data-id');
-          removeItem(id);
-          return;
-        }
+      const removeBtn = e.target.closest('.cart-remove-btn');
+      if (removeBtn) {
+        const id = removeBtn.getAttribute('data-id');
+        removeItem(id);
+        return;
+      }
 
-        if (e.target.closest('#cart-start-shopping-btn')) {
-          closeDrawer();
-          const target = document.getElementById('featured-notebooks-section');
-          if (target) target.scrollIntoView({ behavior: 'smooth' });
-          else window.location.href = '/pages/shop.html';
-        }
-      });
-    }
+      if (e.target.closest('#cart-start-shopping-btn')) {
+        closeDrawer();
+        const target = document.getElementById('featured-notebooks-section');
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+        else window.location.href = window.location.pathname.includes('/pages/') ? 'shop.html' : 'pages/shop.html';
+      }
+    });
 
     // Checkout button inside drawer
     document.getElementById('checkout-action-btn')?.addEventListener('click', () => {
@@ -378,7 +477,8 @@ const CartManager = (function () {
         return;
       }
       closeDrawer();
-      window.location.href = '/pages/checkout.html';
+      const isInsidePages = window.location.pathname.includes('/pages/');
+      window.location.href = isInsidePages ? 'checkout.html' : 'pages/checkout.html';
     });
   });
 

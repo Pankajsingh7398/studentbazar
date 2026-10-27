@@ -15,9 +15,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check login state: redirect to login if not authenticated
   await window.AuthManager?.checkSession();
   const user = window.AuthManager?.getUser();
+  const isInsidePages = window.location.pathname.includes('/pages/');
   if (!user) {
-    sessionStorage.setItem('redirect_after_login', '/pages/checkout.html');
-    window.location.href = '/pages/login.html';
+    sessionStorage.setItem('redirect_after_login', isInsidePages ? 'checkout.html' : 'pages/checkout.html');
+    window.location.href = isInsidePages ? 'login.html' : 'pages/login.html';
     return;
   }
 
@@ -35,10 +36,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Fetch fresh cart calculation
-  const cart = await window.CartManager.fetchCart();
+  let cart = await window.CartManager.fetchCart();
+  if (!cart.items || cart.items.length === 0) {
+    const rawLocal = localStorage.getItem('studentbazaar_cart');
+    if (rawLocal) {
+      try {
+        const parsed = JSON.parse(rawLocal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (window.CartManager?.syncWithServer) {
+            await window.CartManager.syncWithServer();
+          }
+          cart = await window.CartManager.fetchCart();
+        }
+      } catch (_) {}
+    }
+  }
+
   if (!cart.items || cart.items.length === 0) {
     window.showToast?.('Your study kit is empty! Add notebooks before checkout.', 'error');
-    setTimeout(() => { window.location.href = '/index.html'; }, 1500);
+    setTimeout(() => { window.location.href = isInsidePages ? '../index.html' : 'index.html'; }, 1500);
     return;
   }
 
@@ -66,6 +82,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (discountElem) discountElem.textContent = cart.discount > 0 ? `- ₹${cart.discount}` : '₹0';
   if (totalElem) totalElem.textContent = `₹${cart.total}`;
 
+  // Helper: Copy phone to WhatsApp input
+  document.getElementById('copy-phone-btn')?.addEventListener('click', () => {
+    const phoneVal = document.getElementById('checkout-phone')?.value.trim();
+    const whatsappInput = document.getElementById('checkout-whatsapp');
+    if (whatsappInput && phoneVal) {
+      whatsappInput.value = phoneVal;
+      window.showToast?.('WhatsApp number set to phone number', 'check');
+    }
+  });
+
   // Handle checkout form submission
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', async (e) => {
@@ -73,6 +99,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const fullName = document.getElementById('checkout-name')?.value.trim();
       const phone = document.getElementById('checkout-phone')?.value.trim();
+      const whatsappNumber = document.getElementById('checkout-whatsapp')?.value.trim() || phone;
+      const whatsappOptIn = document.getElementById('checkout-whatsapp-optin')?.checked ?? true;
+      const deliveryInstructions = document.getElementById('checkout-instructions')?.value.trim();
       const hostelOrBuilding = document.getElementById('checkout-hostel')?.value.trim();
       const campusName = document.getElementById('checkout-campus')?.value.trim();
       const city = document.getElementById('checkout-city')?.value.trim() || 'New Delhi';
@@ -91,7 +120,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       try {
         const orderPayload = {
-          shippingAddress: { fullName, phone, hostelOrBuilding, campusName, city, pinCode },
+          shippingAddress: {
+            fullName,
+            phone,
+            hostelOrBuilding: deliveryInstructions ? `${hostelOrBuilding} (Note: ${deliveryInstructions})` : hostelOrBuilding,
+            campusName,
+            city,
+            pinCode
+          },
+          whatsappNumber,
+          whatsappOptIn,
           paymentMethod,
           items: cart.items.map(i => ({ productId: i.productId || i._id, quantity: i.quantity }))
         };
@@ -107,8 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           // If Razorpay payment selected:
           if (paymentMethod === 'razorpay') {
             window.showToast?.('Initiating secure Razorpay gateway...', 'payments');
-            // Mock test verification
-            const verifyRes = await window.apiRequest('/payments/razorpay/verify', {
+            await window.apiRequest('/payments/razorpay/verify', {
               method: 'POST',
               body: JSON.stringify({
                 orderId: createdOrder._id,
@@ -126,11 +163,34 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (successModal) {
             document.getElementById('success-order-number').textContent = createdOrder.orderNumber;
             document.getElementById('success-order-total').textContent = `₹${createdOrder.total}`;
+            const trackBtn = document.getElementById('success-track-btn');
+            if (trackBtn) {
+              trackBtn.href = `orders.html?id=${createdOrder._id}`;
+            }
+
+            // Pre-fill WhatsApp message to Admin (8429172879)
+            const adminWaBtn = document.getElementById('success-whatsapp-admin-btn');
+            if (adminWaBtn) {
+              const itemsList = (createdOrder.items || []).map(i => `${i.quantity}x ${i.name}`).join(', ');
+              const waMsg = encodeURIComponent(
+                `🔔 *NEW ORDER RECEIVED (StudentBazaar)*\n\n` +
+                `*Order ID:* #${createdOrder.orderNumber}\n` +
+                `*Customer:* ${createdOrder.shippingAddress?.fullName || 'Customer'}\n` +
+                `*Phone:* ${createdOrder.shippingAddress?.phone || 'N/A'}\n` +
+                `*Items:* ${itemsList}\n` +
+                `*Total:* ₹${createdOrder.total}\n` +
+                `*Payment:* ${createdOrder.paymentMethod ? createdOrder.paymentMethod.toUpperCase() : 'COD'}\n` +
+                `*Address:* ${createdOrder.shippingAddress?.hostelOrBuilding || ''}, ${createdOrder.shippingAddress?.campusName || ''}\n\n` +
+                `Review on Admin Portal:\nhttps://studentbazaar.netlify.app/admin/orders.html`
+              );
+              adminWaBtn.href = `https://wa.me/918429172879?text=${waMsg}`;
+            }
+
             successModal.classList.remove('hidden');
             successModal.classList.add('flex');
           } else {
             window.showToast?.(`Order ${createdOrder.orderNumber} placed!`, 'check_circle');
-            setTimeout(() => { window.location.href = '/pages/orders.html'; }, 1800);
+            setTimeout(() => { window.location.href = `orders.html?id=${createdOrder._id}`; }, 1800);
           }
         }
       } catch (err) {
