@@ -447,8 +447,22 @@ header {
    11. Shopping Cart Drawer & Overlay
    -------------------------------------------------------------------------- */
 #cart-drawer {
+  max-width: 100vw;
+  width: 100%;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
+}
+
+@media (min-width: 640px) {
+  #cart-drawer {
+    max-width: 26rem;
+  }
+}
+
+@media (min-width: 768px) {
+  #cart-drawer {
+    max-width: 28rem;
+  }
 }
 
 #cart-drawer-backdrop {
@@ -459,8 +473,67 @@ body.cart-open {
   overflow: hidden !important;
 }
 
+#cart-items-container {
+  padding: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+}
+
+.cart-item-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--color-surface-container-low);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(64, 38, 25, 0.08);
+  transition: all 0.2s ease;
+}
+
+.cart-item-card:hover {
+  background-color: var(--color-surface-container);
+}
+
 /* --------------------------------------------------------------------------
-   12. Toast Notifications
+   12. Universal Spacing Utility Tokens
+   -------------------------------------------------------------------------- */
+.p-space-xs { padding: 0.25rem !important; }
+.p-space-sm { padding: 0.5rem !important; }
+.p-space-md { padding: 1rem !important; }
+.p-space-lg { padding: 1.25rem !important; }
+.p-space-xl { padding: 2rem !important; }
+
+.px-space-xs { padding-left: 0.25rem !important; padding-right: 0.25rem !important; }
+.px-space-sm { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+.px-space-md { padding-left: 1rem !important; padding-right: 1rem !important; }
+.px-space-lg { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+
+.py-space-xs { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+.py-space-sm { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+.py-space-md { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+.py-space-lg { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+
+.pt-space-xs { padding-top: 0.25rem !important; }
+.pt-space-sm { padding-top: 0.5rem !important; }
+.pt-space-md { padding-top: 1rem !important; }
+.pt-space-lg { padding-top: 1.25rem !important; }
+
+.gap-space-xs { gap: 0.25rem !important; }
+.gap-space-sm { gap: 0.5rem !important; }
+.gap-space-md { gap: 0.75rem !important; }
+.gap-space-lg { gap: 1.25rem !important; }
+
+.space-y-space-xs > * + * { margin-top: 0.25rem !important; }
+.space-y-space-sm > * + * { margin-top: 0.5rem !important; }
+.space-y-space-md > * + * { margin-top: 0.75rem !important; }
+.space-y-space-lg > * + * { margin-top: 1.25rem !important; }
+
+.h-18 { height: 4.5rem !important; }
+.w-14 { width: 3.5rem !important; }
+
+/* --------------------------------------------------------------------------
+   13. Toast Notifications
    -------------------------------------------------------------------------- */
 #toast {
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
@@ -469,7 +542,7 @@ body.cart-open {
 }
 
 /* --------------------------------------------------------------------------
-   13. General Responsive Adjustments
+   14. General Responsive Header Margins
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   main {
@@ -482,3 +555,4 @@ body.cart-open {
     padding-top: var(--header-height-desktop) !important;
   }
 }
+

@@ -67,3 +67,43 @@
   padding: 0.85rem 1rem;
   font-size: 13px;
 }
+
+/* --------------------------------------------------------------------------
+   Admin Mobile Responsive Adaptations
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--color-surface-container) !important;
+    padding: 1rem !important;
+  }
+
+  .admin-sidebar nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.375rem !important;
+    padding-top: 0.5rem !important;
+  }
+
+  .admin-nav-item {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 12px !important;
+    gap: 0.375rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  .admin-nav-item span.material-symbols-outlined {
+    font-size: 16px !important;
+  }
+
+  main.flex-1 {
+    padding: 1rem !important;
+  }
+
+  .stat-card {
+    padding: 1rem !important;
+  }
+}
+

@@ -304,33 +304,34 @@
     }
 
     container.innerHTML = cart.map(item => `
-      <div class="flex items-center gap-space-md p-space-sm bg-surface-container-low rounded-xl" data-id="${item.id}">
-        <div class="w-14 h-18 rounded-md ${item.img || 'bg-stone-800 text-stone-100'} flex items-center justify-center flex-shrink-0 shadow-xs font-mono text-[10px] p-1 text-center font-bold">
-          NOTE
+      <div class="cart-item-card flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-surface-container/60 shadow-xs" data-id="${item.id}">
+        <div class="w-12 h-16 rounded-lg ${item.img || 'bg-[#1C3627] text-amber-200'} flex flex-col items-center justify-center flex-shrink-0 shadow-xs text-center p-1">
+          <span class="material-symbols-outlined text-[16px] opacity-80">menu_book</span>
+          <span class="font-mono text-[9px] font-bold tracking-wider mt-0.5">NOTE</span>
         </div>
-        <div class="flex-1 min-w-0">
-          <h4 class="font-label-lg text-label-lg text-primary truncate">${escapeHtml(item.name)}</h4>
-          <div class="font-currency-md text-currency-md text-primary mt-0.5">₹${item.price}</div>
+        <div class="flex-1 min-w-0 pr-1">
+          <h4 class="font-label-md text-label-md text-primary font-semibold truncate leading-tight">${escapeHtml(item.name)}</h4>
+          <div class="font-currency-md text-currency-md text-secondary font-bold mt-0.5">₹${item.price}</div>
           
-          <div class="flex items-center gap-space-md mt-2">
-            <div class="flex items-center bg-surface-container-highest rounded-lg overflow-hidden">
-              <button class="cart-qty-btn w-7 h-7 flex items-center justify-center hover:bg-surface-variant text-primary transition" data-action="decrease" data-id="${item.id}" aria-label="Decrease quantity">
-                <span class="material-symbols-outlined text-[14px]">remove</span>
+          <div class="flex items-center gap-2 mt-2">
+            <div class="flex items-center bg-surface-container-highest rounded-lg overflow-hidden border border-surface-container">
+              <button class="cart-qty-btn w-6 h-6 flex items-center justify-center hover:bg-surface-container text-primary transition" data-action="decrease" data-id="${item.id}" aria-label="Decrease quantity">
+                <span class="material-symbols-outlined text-[13px]">remove</span>
               </button>
-              <span class="w-7 text-center font-label-md text-label-md text-primary">${item.quantity}</span>
-              <button class="cart-qty-btn w-7 h-7 flex items-center justify-center hover:bg-surface-variant text-primary transition" data-action="increase" data-id="${item.id}" aria-label="Increase quantity">
-                <span class="material-symbols-outlined text-[14px]">add</span>
+              <span class="w-6 text-center font-label-sm text-label-sm font-bold text-primary">${item.quantity}</span>
+              <button class="cart-qty-btn w-6 h-6 flex items-center justify-center hover:bg-surface-container text-primary transition" data-action="increase" data-id="${item.id}" aria-label="Increase quantity">
+                <span class="material-symbols-outlined text-[13px]">add</span>
               </button>
             </div>
 
-            <button class="cart-remove-btn text-on-surface-variant hover:text-error text-body-sm font-body-sm flex items-center gap-0.5 transition" data-id="${item.id}" aria-label="Remove item">
-              <span class="material-symbols-outlined text-[16px]">delete</span>
+            <button class="cart-remove-btn text-on-surface-variant hover:text-error text-[11px] font-medium flex items-center gap-0.5 transition" data-id="${item.id}" aria-label="Remove item">
+              <span class="material-symbols-outlined text-[14px]">delete</span>
               <span>Remove</span>
             </button>
           </div>
         </div>
-        <div class="text-right">
-          <span class="font-currency-md text-currency-md text-primary">₹${item.price * item.quantity}</span>
+        <div class="text-right flex-shrink-0">
+          <span class="font-currency-md text-currency-md text-primary font-bold">₹${item.price * item.quantity}</span>
         </div>
       </div>
     `).join('');
