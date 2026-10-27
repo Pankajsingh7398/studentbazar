@@ -9,10 +9,13 @@ export function validateEnvironment() {
   const weakSecrets = [];
 
   const required = [
-    'MONGODB_URI',
     'JWT_SECRET',
     'COOKIE_SECRET'
   ];
+
+  if (!process.env.MONGODB_URI && !process.env.MONGO_URL) {
+    missing.push('MONGODB_URI (or MONGO_URL)');
+  }
 
   if (isProduction) {
     required.push('FRONTEND_URL');
