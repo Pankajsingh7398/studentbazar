@@ -1,12 +1,50 @@
 import jwt from 'jsonwebtoken';
+import { clerkClient } from '@clerk/express';
 import { ApiError } from '../utils/apiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { User } from '../models/User.js';
 
 /**
- * Middleware to verify authenticated session from HTTP-only cookie or Bearer header
+ * Middleware to verify authenticated session from Clerk or legacy JWT cookie/Bearer
  */
 export const verifyJWT = asyncHandler(async (req, res, next) => {
+  // 1. Check if authenticated via Clerk (from Clerk middleware or Authorization header)
+  if (req.auth && req.auth.userId) {
+    let user = await User.findOne({ clerkId: req.auth.userId });
+    if (!user) {
+      // Auto-provision or link user by email from Clerk
+      try {
+        const clerkUser = await clerkClient.users.getUser(req.auth.userId);
+        const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
+        if (email) {
+          user = await User.findOne({ email });
+          if (user) {
+            user.clerkId = req.auth.userId;
+            await user.save();
+          } else {
+            user = await User.create({
+              clerkId: req.auth.userId,
+              name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'Scholar',
+              email: email,
+              emailVerified: true
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[Clerk] Could not fetch user details from Clerk API:', err.message);
+      }
+    }
+
+    if (user) {
+      if (!user.isActive) {
+        throw new ApiError(403, 'Your account has been deactivated. Please contact campus support.');
+      }
+      req.user = user;
+      return next();
+    }
+  }
+
+  // 2. Fallback to standard StudentBazaar JWT token (cookie or header)
   const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {

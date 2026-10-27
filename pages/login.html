@@ -45,6 +45,13 @@
   <!-- Scripts -->
   <script src="../js/api.js" defer></script>
   <script src="../js/auth.js" defer></script>
+  <script 
+    async 
+    crossorigin="anonymous" 
+    data-clerk-publishable-key="pk_test_dXNlZnVsLWJpc29uLTgzNjUuY2xlcmsuYWNjb3VudHMuZGV2JA" 
+    src="https://useful-bison-8365.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" 
+    type="text/javascript">
+  </script>
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between">
 
@@ -92,7 +99,22 @@
           <span>Sign In to Campus Kit</span>
           <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
         </button>
+
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-surface-container"></div>
+          <span class="flex-shrink mx-3 text-[11px] text-on-surface-variant uppercase font-semibold">Or continue with</span>
+          <div class="flex-grow border-t border-surface-container"></div>
+        </div>
+
+        <button id="clerk-sign-in-btn" type="button" class="w-full py-3 border border-surface-container bg-surface-container-low hover:bg-surface-container text-primary font-semibold rounded-xl text-body-sm transition flex items-center justify-center gap-2 shadow-xs">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2v-2zm0-10h2v8h-2V6z"/>
+          </svg>
+          <span>Sign in with Clerk Auth</span>
+        </button>
       </form>
+
+      <div id="clerk-auth-container" class="mt-4 flex justify-center"></div>
 
       <div class="text-center text-body-sm text-on-surface-variant pt-2 border-t border-surface-container">
         <span>New to StudentBazaar?</span>
@@ -123,6 +145,26 @@
         toast.classList.remove('opacity-100', 'translate-y-0');
       }, 2800);
     };
+
+    // Clerk Sign-in Integration
+    document.getElementById('clerk-sign-in-btn')?.addEventListener('click', async () => {
+      const container = document.getElementById('clerk-auth-container');
+      if (window.Clerk) {
+        await window.Clerk.load();
+        if (window.Clerk.user) {
+          window.showToast(`Already signed in as ${window.Clerk.user.fullName || window.Clerk.user.primaryEmailAddress}`, 'check_circle');
+          setTimeout(() => { window.location.href = '/pages/account.html'; }, 1000);
+        } else {
+          container.innerHTML = '';
+          window.Clerk.mountSignIn(container, {
+            afterSignInUrl: '/pages/account.html',
+            afterSignUpUrl: '/pages/account.html'
+          });
+        }
+      } else {
+        window.showToast('Clerk authentication is loading, please try again in a moment.', 'info');
+      }
+    });
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
