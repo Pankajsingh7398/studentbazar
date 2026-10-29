@@ -1,6 +1,6 @@
 # Netlify Configuration for StudentBazaar
 [build]
-  publish = "."
+  publish = "frontend"
 
 # Clean URL Rewrites for Netlify
 [[redirects]]

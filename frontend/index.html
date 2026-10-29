@@ -128,13 +128,18 @@
     <!-- Main Navigation Bar -->
     <div class="w-full bg-surface-container-lowest">
       <div class="h-20 max-w-7xl mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-lg">
-        <!-- Logo & Tagline -->
-        <div class="flex items-center gap-space-md flex-shrink-0">
-          <img alt="StudentBazaar Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
-          <div class="flex flex-col">
-            <span class="font-headline-sm text-headline-sm text-primary leading-none tracking-tight font-serif">StudentBazaar</span>
-            <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase mt-0.5">Study • Shop • Grow</span>
-          </div>
+        <!-- Logo & Mobile 3-Line Menu Trigger -->
+        <div class="flex items-center gap-2 sm:gap-space-md flex-shrink-0">
+          <button id="mobile-menu-btn" aria-label="Open navigation menu" class="inline-flex md:hidden p-2 -ml-1.5 rounded-xl text-primary hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-[26px]">menu</span>
+          </button>
+          <a href="#" data-path="home" class="flex items-center gap-space-md cursor-pointer">
+            <img alt="StudentBazaar Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+            <div class="flex flex-col">
+              <span class="font-headline-sm text-headline-sm text-primary leading-none tracking-tight font-serif">StudentBazaar</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase mt-0.5">Study • Shop • Grow</span>
+            </div>
+          </a>
         </div>
 
         <!-- Search Bar with Live Product Filtering -->
@@ -163,10 +168,18 @@
       </div>
     </div>
 
-    <!-- Category Links Sub-Navigation -->
-    <div class="w-full bg-surface-container-low/95 backdrop-blur-md">
-      <div class="h-11 max-w-7xl mx-auto px-margin-mobile md:px-margin flex items-center justify-between">
-        <nav class="flex items-center gap-space-lg overflow-x-auto no-scrollbar h-full">
+    <!-- Mobile Search Bar (Only on small screens) -->
+    <div class="block md:hidden px-4 pb-2.5 bg-surface-container-lowest border-b border-surface-container/30">
+      <div class="relative w-full flex items-center">
+        <span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span>
+        <input id="mobile-header-search-input" class="w-full pl-9 pr-4 py-2 bg-surface-container-low text-on-surface placeholder:text-outline text-body-sm font-body-sm rounded-full focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search notebooks, pens, kits..." type="text"/>
+      </div>
+    </div>
+
+    <!-- Category Links Sub-Navigation (Desktop / Tablet only) -->
+    <div class="hidden md:block w-full bg-surface-container-low/95 backdrop-blur-md border-t border-surface-container/50">
+      <div class="h-11 max-w-7xl mx-auto px-margin flex items-center justify-between">
+        <nav class="flex items-center gap-6 h-full">
           <a aria-current="page" class="nav-link h-full inline-flex items-center transition-colors whitespace-nowrap text-primary font-bold border-b-2 border-primary" data-path="home" href="#">Home</a>
           <a class="nav-link h-full inline-flex items-center text-on-surface-variant hover:text-primary text-label-md font-label-md transition-colors whitespace-nowrap" data-path="shop" href="#">Shop</a>
           <a class="nav-link h-full inline-flex items-center text-on-surface-variant hover:text-primary text-label-md font-label-md transition-colors whitespace-nowrap" data-path="notebooks" href="#">Notebooks</a>
@@ -192,6 +205,73 @@
         <span class="material-symbols-outlined text-[18px] text-primary-fixed" id="toast-icon">check_circle</span>
         <span class="font-label-md text-label-md" id="toast-message">Item added to cart</span>
       </div>
+
+      <!-- Mobile 3-Line Menu Drawer Overlay & Container -->
+      <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" id="mobile-nav-backdrop"></div>
+      <aside aria-label="Mobile Navigation Menu" class="fixed top-0 left-0 z-50 h-full w-[85%] max-w-xs bg-surface-container-lowest shadow-2xl transform -translate-x-full transition-transform duration-300 flex flex-col justify-between md:hidden" id="mobile-nav-drawer">
+        <div class="flex flex-col">
+          <!-- Drawer Header -->
+          <div class="p-4 bg-surface-container-low flex items-center justify-between border-b border-surface-container">
+            <div class="flex items-center gap-2">
+              <img alt="StudentBazaar Logo" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfk-NrrJ5RzQXwJw08BU_qg0Y4allogKU6fTKcbIO1nzQEFH34kxJVE_d2XPH-sBtCgynFid6tENHv2KWIP9NpAe8f-KX8P6bteWyfamKZF52-6NuD7UXNen6suEgDj-s3Cvx8k8eSeLsAPnLN0RKEn0FOOTAFAl-2DRElnNxDkvPdnIjmQgmaQ5okgQ_VeK872BCl5KqA2J0fUqp-5cMOih8_LaLKn3Ider1GGuEw6rKWyu_4MvgISA"/>
+              <span class="font-headline-sm text-headline-sm text-primary font-serif">StudentBazaar</span>
+            </div>
+            <button aria-label="Close menu" class="p-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors" id="close-mobile-nav-btn">
+              <span class="material-symbols-outlined text-[22px]">close</span>
+            </button>
+          </div>
+
+          <!-- Navigation Links -->
+          <nav class="p-3 space-y-1 font-label-md text-label-md overflow-y-auto max-h-[calc(100vh-180px)]">
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-primary font-bold bg-primary-container/10 transition-colors" data-path="home" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">home</span>
+              <span>Home</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="shop" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">storefront</span>
+              <span>Shop All Products</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="notebooks" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">menu_book</span>
+              <span>Notebooks &amp; Journals</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="stationery" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">edit</span>
+              <span>Pens &amp; Inks</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="accessories" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">backpack</span>
+              <span>Bags &amp; Daypacks</span>
+            </a>
+            <hr class="my-2 border-surface-container"/>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="order-tracking" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">local_shipping</span>
+              <span>Track My Order</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="wishlist" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">favorite</span>
+              <span>Wishlist</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="about-us" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">info</span>
+              <span>About Us</span>
+            </a>
+            <a class="mobile-nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors" data-path="contact-us" href="#">
+              <span class="material-symbols-outlined text-[20px] text-secondary">support_agent</span>
+              <span>Contact &amp; Help</span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 bg-surface-container-low border-t border-surface-container space-y-2">
+          <a href="https://wa.me/918429172879?text=Hello%20StudentBazaar" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-center font-label-md flex items-center justify-center gap-2 transition shadow-xs">
+            <span class="material-symbols-outlined text-[18px]">chat</span>
+            <span>WhatsApp Concierge</span>
+          </a>
+          <p class="text-center text-[11px] text-on-surface-variant">Free delivery inside campus within 10 km</p>
+        </div>
+      </aside>
 
       <!-- Shopping Cart Slide-out Drawer Overlay & Container -->
       <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300" id="cart-drawer-backdrop"></div>

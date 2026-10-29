@@ -1,0 +1,11 @@
+{
+  "name": "studentbazaar-frontend",
+  "version": "1.0.0",
+  "description": "StudentBazaar Frontend - Academic Stationery & Campus Store",
+  "scripts": {
+    "dev": "npx -y serve -l 8080 .",
+    "start": "npx -y serve -l 8080 ."
+  },
+  "author": "StudentBazaar Engineering",
+  "license": "ISC"
+}

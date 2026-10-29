@@ -37,22 +37,34 @@ StudentBazaar is a production-grade, secure, responsive full-stack e-commerce we
 
 ```
 .
-├── index.html          # Public Storefront (Home)
-├── pages/              # Frontend Pages (shop, product, cart, checkout, login, orders)
-├── js/                 # Client scripts (api.js, auth.js, cart.js, checkout.js, etc.)
-├── css/                # Stylesheets (components.css, forms.css, responsive.css)
-├── admin/              # Admin Portal (orders.html, index.html, products.html, etc.)
-├── server/             # Express.js REST API & MongoDB models
+├── frontend/           # Client-side UI & static assets
+│   ├── index.html      # Public Storefront (Home)
+│   ├── pages/          # Store pages (shop, cart, checkout, login, orders, etc.)
+│   ├── js/             # Client scripts (api.js, auth.js, cart.js, checkout.js, etc.)
+│   ├── css/            # Stylesheets (components.css, forms.css, responsive.css)
+│   ├── admin/          # Admin Portal (orders.html, index.html, products.html, etc.)
+│   ├── assets/         # Static media assets (banners, logo, products)
+│   ├── script.js       # Storefront main interactivity script
+│   ├── style.css       # Core storefront styling
+│   ├── serve.json      # Client route rewrites
+│   └── package.json    # Frontend runner scripts
+├── backend/            # Express.js REST API & MongoDB models
 │   ├── src/
 │   │   ├── controllers/# Business logic (auth, orders, admin, cart, products)
 │   │   ├── models/     # Mongoose Schemas (User, Order, NotificationLog, etc.)
 │   │   ├── routes/     # API routes (/api/v1/...)
 │   │   ├── services/   # WhatsApp Cloud API service
 │   │   └── server.js   # Server entrypoint (Port 5001)
-└── package.json        # Root runner scripts
+│   ├── tests/          # Automated integration test suites
+│   ├── .env            # Backend environment variables
+│   └── package.json    # Backend dependencies & scripts
+├── docs/               # Architecture, API & security documentation
+├── Dockerfile          # Production container specification
+├── railway.json        # Railway deployment configuration
+├── Procfile            # Heroku / Railway web process entrypoint
+├── netlify.toml        # Netlify frontend deployment configuration
+└── package.json        # Root unified runner scripts
 ```
-
-> **Note**: Frontend files (`index.html`, `pages/`, `js/`) reside in the root directory. There is no separate `cd frontend` directory.
 
 ---
 
@@ -65,7 +77,7 @@ StudentBazaar is a production-grade, secure, responsive full-stack e-commerce we
 ### 1. Install Dependencies
 From the project root directory:
 ```bash
-cd server
+cd backend
 npm install
 cd ..
 ```
@@ -85,7 +97,7 @@ ADMIN_PASSKEY=AdminPassKey123!
 Seed categories, archival notebook editions, demo accounts, and coupons:
 ```bash
 npm run seed
-# OR: cd server && npm run seed
+# OR: cd backend && npm run seed
 ```
 
 ---
@@ -101,7 +113,7 @@ The backend server is configured to automatically serve the frontend static page
 npm run backend
 
 # OR:
-cd server
+cd backend
 npm run dev
 ```
 - **Backend API & Storefront URL**: [`http://localhost:5001`](http://localhost:5001)
@@ -132,7 +144,7 @@ npm run frontend
 Run all 29 automated integration tests covering authentication, admin passkey, order lifecycle, live tracking, and WhatsApp webhooks:
 ```bash
 npm test
-# OR: cd server && npm test
+# OR: cd backend && npm test
 ```
 
 ---

@@ -23,7 +23,7 @@ import webhookRoutes from './routes/webhookRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '../../');
+const frontendDir = path.resolve(__dirname, '../../frontend');
 
 const app = express();
 
@@ -103,11 +103,30 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Serve root static frontend assets with caching header in production
-app.use(express.static(rootDir, {
+// Serve frontend static assets with caching header in production
+app.use(express.static(frontendDir, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: true
 }));
+
+// Clean URL rewrite fallbacks for static frontend
+app.get(['/shop', '/products'], (req, res) => res.sendFile(path.join(frontendDir, 'pages/shop.html')));
+app.get('/cart', (req, res) => res.sendFile(path.join(frontendDir, 'pages/cart.html')));
+app.get('/checkout', (req, res) => res.sendFile(path.join(frontendDir, 'pages/checkout.html')));
+app.get('/orders', (req, res) => res.sendFile(path.join(frontendDir, 'pages/orders.html')));
+app.get('/account', (req, res) => res.sendFile(path.join(frontendDir, 'pages/account.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(frontendDir, 'pages/login.html')));
+app.get('/register', (req, res) => res.sendFile(path.join(frontendDir, 'pages/register.html')));
+app.get('/about', (req, res) => res.sendFile(path.join(frontendDir, 'pages/about.html')));
+app.get('/contact', (req, res) => res.sendFile(path.join(frontendDir, 'pages/contact.html')));
+app.get('/wishlist', (req, res) => res.sendFile(path.join(frontendDir, 'pages/wishlist.html')));
+app.get(['/admin', '/admin/'], (req, res) => res.sendFile(path.join(frontendDir, 'admin/index.html')));
+app.get('/admin/:page', (req, res, next) => {
+  const filePath = path.join(frontendDir, 'admin', `${req.params.page}.html`);
+  res.sendFile(filePath, (err) => {
+    if (err) next();
+  });
+});
 
 // Health check endpoint
 app.get('/api/v1/health', (req, res) => {

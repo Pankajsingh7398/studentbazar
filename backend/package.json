@@ -1,5 +1,5 @@
 {
-  "name": "studentbazaar-server",
+  "name": "studentbazaar-backend",
   "version": "1.0.0",
   "description": "Production-ready REST API for StudentBazaar Academic Stationery & Campus Store",
   "main": "src/server.js",

@@ -120,36 +120,84 @@ export const createProduct = asyncHandler(async (req, res) => {
     stock = 100,
     featured = false,
     tags = [],
-    specifications = {}
+    specifications = {},
+    coverSnippet
   } = req.body;
 
-  if (!name || !price || !SKU || !categorySlug) {
-    throw new ApiError(400, 'Name, price, SKU, and category are required.');
+  if (!name || price === undefined || price === null || price === '') {
+    throw new ApiError(400, 'Product name and price are required.');
   }
 
-  const category = await Category.findOne({ slug: categorySlug.toLowerCase() });
+  // Resolve Category flexibly: by slug, name regex, category ID, or first available category
+  let category = null;
+  if (categorySlug) {
+    category = await Category.findOne({ slug: categorySlug.toLowerCase().trim() });
+    if (!category) {
+      category = await Category.findOne({ name: new RegExp(`^${categorySlug.trim()}$`, 'i') });
+    }
+  }
+  if (!category && req.body.category) {
+    category = await Category.findById(req.body.category).catch(() => null);
+  }
   if (!category) {
-    throw new ApiError(400, 'Invalid category selected.');
+    category = await Category.findOne({ isActive: true }) || await Category.findOne();
+  }
+  if (!category) {
+    category = await Category.create({
+      name: 'Notebooks',
+      slug: 'notebooks',
+      icon: 'menu_book',
+      description: 'Standard campus notebook edition'
+    });
   }
 
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  // Collision-free slug generation
+  const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'product';
+  let slug = baseSlug;
+  let slugAttempts = 1;
+  while (await Product.findOne({ slug })) {
+    slug = `${baseSlug}-${Date.now().toString().slice(-4)}${slugAttempts > 1 ? `-${slugAttempts}` : ''}`;
+    slugAttempts++;
+  }
+
+  // Auto-generate unique SKU if not provided
+  let finalSKU = SKU && SKU.trim() ? SKU.toUpperCase().trim() : '';
+  if (!finalSKU) {
+    const catCode = (category.slug || 'NB').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'NB';
+    finalSKU = `SB-${catCode}-${Math.floor(100 + Math.random() * 900)}`;
+    while (await Product.findOne({ SKU: finalSKU })) {
+      finalSKU = `SB-${catCode}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+  }
+
+  // Aesthetic palettes for notebooks
+  const palettes = [
+    'bg-[#1C3627] text-amber-200',
+    'bg-[#4A6B82] text-white',
+    'bg-[#8C4A32] text-amber-100',
+    'bg-[#2A3439] text-emerald-300',
+    'bg-[#3F3356] text-purple-200',
+    'bg-[#7A3E48] text-rose-100'
+  ];
+  const finalMockupStyle = mockupStyle || palettes[Math.floor(Math.random() * palettes.length)];
 
   const product = new Product({
     name,
     slug,
     description: description || name,
-    shortDescription,
+    shortDescription: shortDescription || `${category.name} • ${stock} Units • Campus Edition`,
     price: Number(price),
     compareAtPrice: compareAtPrice ? Number(compareAtPrice) : undefined,
-    SKU: SKU.toUpperCase().trim(),
+    SKU: finalSKU,
     category: category._id,
     categorySlug: category.slug,
-    mockupStyle: mockupStyle || 'bg-primary-container text-on-primary',
-    badge,
-    badgeColor,
+    mockupStyle: finalMockupStyle,
+    coverSnippet: coverSnippet || name,
+    badge: badge || '',
+    badgeColor: badgeColor || '',
     stock: Number(stock),
     featured: Boolean(featured),
-    tags: Array.isArray(tags) ? tags : [tags],
+    tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
     specifications
   });
 

@@ -3,9 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Copy server package manifests
-COPY server/package*.json ./server/
-WORKDIR /usr/src/app/server
+# Copy backend package manifests
+COPY backend/package*.json ./backend/
+WORKDIR /usr/src/app/backend
 RUN npm ci --only=production
 
 # Copy entire application codebase
@@ -18,5 +18,5 @@ ENV PORT=5001
 
 EXPOSE 5001
 
-WORKDIR /usr/src/app/server
+WORKDIR /usr/src/app/backend
 CMD ["node", "src/server.js"]

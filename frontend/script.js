@@ -219,6 +219,28 @@
     document.body.classList.remove('cart-open');
   }
 
+  function openMobileNav() {
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (!drawer || !backdrop) return;
+
+    backdrop.classList.remove('opacity-0', 'pointer-events-none');
+    backdrop.classList.add('opacity-100');
+    drawer.classList.remove('-translate-x-full');
+    document.body.classList.add('cart-open');
+  }
+
+  function closeMobileNav() {
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (!drawer || !backdrop) return;
+
+    backdrop.classList.add('opacity-0', 'pointer-events-none');
+    backdrop.classList.remove('opacity-100');
+    drawer.classList.add('-translate-x-full');
+    document.body.classList.remove('cart-open');
+  }
+
   function updateCartTotals() {
     const totalCount = cart.reduce((acc, item) => acc + item.quantity, 0);
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -595,8 +617,17 @@
     // Cart Drawer close triggers
     document.getElementById('close-cart-btn')?.addEventListener('click', closeCartDrawer);
     document.getElementById('cart-drawer-backdrop')?.addEventListener('click', closeCartDrawer);
+
+    // Mobile Navigation Drawer triggers
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', openMobileNav);
+    document.getElementById('close-mobile-nav-btn')?.addEventListener('click', closeMobileNav);
+    document.getElementById('mobile-nav-backdrop')?.addEventListener('click', closeMobileNav);
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeCartDrawer();
+      if (e.key === 'Escape') {
+        closeCartDrawer();
+        closeMobileNav();
+      }
     });
 
     // Cart Container Delegated Actions (Qty, Remove, Start Shopping)
@@ -727,23 +758,47 @@
       showToast('Binding concierge connected! Submit PDF for hardcover embossing.');
     });
 
-    // Navigation bar links
+    // Navigation bar links (desktop and mobile)
     const navLinks = document.querySelectorAll('nav a[data-path]');
     navLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
+        closeMobileNav();
         const path = link.getAttribute('data-path');
+        const isInsidePages = window.location.pathname.includes('/pages/');
+        const prefix = isInsidePages ? '' : 'pages/';
+
         if (path === 'home') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (isInsidePages) {
+            window.location.href = '../index.html';
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         } else if (path === 'shop' || path === 'notebooks') {
-          resetAllFilters();
-          scrollToNotebooks();
+          if (isInsidePages) {
+            window.location.href = `${prefix}shop.html`;
+          } else {
+            resetAllFilters();
+            scrollToNotebooks();
+          }
         } else if (path === 'stationery') {
-          setCategory('stationery');
-          scrollToNotebooks();
+          if (isInsidePages) {
+            window.location.href = `${prefix}shop.html`;
+          } else {
+            setCategory('stationery');
+            scrollToNotebooks();
+          }
         } else if (path === 'accessories') {
-          setCategory('essentials');
-          scrollToNotebooks();
+          if (isInsidePages) {
+            window.location.href = `${prefix}shop.html`;
+          } else {
+            setCategory('essentials');
+            scrollToNotebooks();
+          }
+        } else if (path === 'order-tracking' || path === 'orders') {
+          window.location.href = `${prefix}orders.html`;
+        } else if (path === 'wishlist') {
+          showToast(`You have ${wishlist.length} item(s) in your Wishlist`, 'favorite');
         } else {
           showToast(`StudentBazaar — ${link.textContent.trim()} section`);
         }

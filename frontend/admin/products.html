@@ -159,15 +159,23 @@
             <input id="prod-stock" type="number" min="0" required placeholder="50" class="w-full px-3 py-2 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary"/>
           </div>
         </div>
-        <div>
-          <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Category</label>
-          <select id="prod-category" class="w-full px-3 py-2 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary">
-            <option value="notebooks">Hardbound Notebooks</option>
-            <option value="spiral">Spiral Notebooks</option>
-            <option value="journals">Scholar Journals</option>
-            <option value="diaries">Academic Diaries</option>
-            <option value="pads">Drawing &amp; Graphing Pads</option>
-          </select>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Category</label>
+            <select id="prod-category" class="w-full px-3 py-2 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary">
+              <option value="notebooks">Notebooks</option>
+              <option value="pens">Pens &amp; Inks</option>
+              <option value="bags">Bags &amp; Totes</option>
+              <option value="stationery">Stationery</option>
+              <option value="calculators">Calculators</option>
+              <option value="bottles">Bottles</option>
+              <option value="essentials">Essentials</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">SKU <span class="text-outline text-[10px] font-normal lowercase">(optional)</span></label>
+            <input id="prod-sku" type="text" placeholder="Auto-generated (e.g. SB-NB-101)" class="w-full px-3 py-2 bg-surface-container-low rounded-xl text-body-sm border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary"/>
+          </div>
         </div>
         <div>
           <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Description</label>
@@ -176,7 +184,7 @@
 
         <div class="flex items-center justify-end gap-3 pt-3">
           <button type="button" onclick="document.getElementById('add-product-modal').classList.add('hidden')" class="px-4 py-2 bg-surface-container text-on-surface-variant rounded-xl text-label-md hover:bg-surface-container-high transition">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-primary text-on-primary rounded-xl text-label-md font-semibold hover:bg-primary-container transition shadow-xs">Save Edition</button>
+          <button type="submit" id="save-product-btn" class="px-5 py-2 bg-primary text-on-primary rounded-xl text-label-md font-semibold hover:bg-primary-container transition shadow-xs">Save Edition</button>
         </div>
       </form>
     </div>
@@ -201,21 +209,54 @@
       }, 2800);
     };
 
+    async function populateCategoryDropdown() {
+      const catSelect = document.getElementById('prod-category');
+      if (!catSelect) return;
+      try {
+        const res = await window.apiRequest('/categories');
+        if (res && res.success && res.data && res.data.categories && res.data.categories.length > 0) {
+          catSelect.innerHTML = res.data.categories.map(c => `
+            <option value="${c.slug}">${c.name}</option>
+          `).join('');
+        }
+      } catch (err) {
+        console.warn('Could not dynamically fetch categories, keeping default options', err);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       window.loadAdminProductsList();
+      populateCategoryDropdown();
 
       document.getElementById('create-product-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const submitBtn = document.getElementById('save-product-btn');
         const name = document.getElementById('prod-name').value.trim();
         const price = Number(document.getElementById('prod-price').value);
         const stock = Number(document.getElementById('prod-stock').value);
+        const SKU = document.getElementById('prod-sku')?.value?.trim();
         const categorySlug = document.getElementById('prod-category').value;
         const description = document.getElementById('prod-desc').value.trim();
 
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
+        }
+
         try {
+          const payload = {
+            name,
+            price,
+            stock: isNaN(stock) ? 50 : stock,
+            categorySlug,
+            description: description || name,
+            coverSnippet: name
+          };
+          if (SKU) payload.SKU = SKU;
+
           const res = await window.apiRequest('/products', {
             method: 'POST',
-            body: JSON.stringify({ name, price, stock, categorySlug, description })
+            body: JSON.stringify(payload)
           });
           if (res && res.success) {
             window.showToast('New edition added successfully!', 'check_circle');
@@ -225,6 +266,11 @@
           }
         } catch (err) {
           window.showToast(err.message || 'Failed to create product', 'error');
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Edition';
+          }
         }
       });
     });

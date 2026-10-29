@@ -1,79 +1,278 @@
 /* ==========================================================================
    StudentBazaar — Comprehensive Responsiveness Module (css/responsive.css)
-   Targeting all required viewports: 320, 360, 375, 390, 430, 540, 600, 768,
-   820, 1024, 1280, 1440, 1920px.
+   Targeting all mobile & responsive viewports: 320, 360, 375, 390, 430, 540,
+   600, 768, 820, 1024, 1280, 1440, 1920px.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Universal No-Overflow Invariant
+   1. Universal No-Overflow & Body State Invariants
    -------------------------------------------------------------------------- */
 html, body {
   max-width: 100vw;
   overflow-x: hidden !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent background scroll when cart drawer or modal is open */
+body.cart-open {
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 /* --------------------------------------------------------------------------
-   2. Ultra-Compact Mobile (< 360px)
+   2. Cart Slide-out Drawer Mobile Optimizations
    -------------------------------------------------------------------------- */
-@media (max-width: 359px) {
-  :root {
-    --header-height-mobile: 140px;
-  }
+#cart-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  z-index: 60 !important;
+}
 
-  .product-card {
-    padding: 0.5rem !important;
-  }
+#cart-drawer-backdrop {
+  z-index: 55 !important;
+}
 
-  .product-card .h-52 {
-    height: 9.5rem !important;
-  }
+/* Mobile 3-Line Menu Drawer */
+#mobile-nav-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  z-index: 70 !important;
+}
 
-  .product-card .w-32 {
-    width: 5.75rem !important;
-    height: 8rem !important;
-  }
+#mobile-nav-backdrop {
+  z-index: 65 !important;
+}
 
-  .font-headline-display {
-    font-size: 26px !important;
-    line-height: 32px !important;
+@media (max-width: 767px) {
+  #cart-drawer {
+    width: 100% !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
   }
-
-  .font-headline-lg {
-    font-size: 22px !important;
-    line-height: 28px !important;
+  
+  #cart-drawer .p-space-lg {
+    padding: 1rem !important;
   }
 }
 
 /* --------------------------------------------------------------------------
-   3. Standard Mobile (360px - 539px)
+   3. Hero Carousel Responsive Architecture
    -------------------------------------------------------------------------- */
+#carousel-track {
+  display: flex !important;
+  width: 100% !important;
+  transition: transform 0.5s ease-out;
+}
+
+.carousel-slide {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 767px) {
+  .carousel-slide-container {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    width: 95% !important;
+  }
+
+  .carousel-slide-container > div {
+    min-height: auto !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 2.25rem !important;
+  }
+
+  .carousel-slide {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    padding: 0.75rem 0.875rem 1.25rem 0.875rem !important;
+    gap: 1rem !important;
+    overflow: hidden !important;
+  }
+
+  .carousel-slide > div {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .carousel-slide .md\:col-span-7 {
+    padding-left: 0 !important;
+    align-items: center !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Responsive hero typography */
+  .carousel-slide h1,
+  .carousel-slide h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.85rem !important;
+    margin-bottom: 0.35rem !important;
+    text-align: center !important;
+  }
+
+  .carousel-slide span.font-headline-md {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.25rem !important;
+    text-align: center !important;
+  }
+
+  .carousel-slide p.font-body-lg {
+    font-size: 0.8125rem !important;
+    line-height: 1.25rem !important;
+    margin-bottom: 0.875rem !important;
+    text-align: center !important;
+    max-width: 100% !important;
+  }
+
+  .carousel-slide .flex.flex-wrap {
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .carousel-slide button {
+    padding: 0.65rem 1.25rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Hide intrusive arrows on mobile */
+  #prev-slide,
+  #next-slide {
+    display: none !important;
+  }
+
+  /* Compact Mockup Graphics on mobile */
+  .carousel-slide .md\:col-span-5 {
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .carousel-slide .notebook-mockup-shadow {
+    width: 13.5rem !important;
+    height: 15rem !important;
+    padding: 0.75rem !important;
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+
+  .carousel-slide .w-72.h-80 {
+    width: 13.5rem !important;
+    height: 15rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .carousel-slide .w-72.h-80 img,
+  .carousel-slide .h-52 {
+    height: 8.5rem !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Product Cards, Mockup Proportions & Badges
+   -------------------------------------------------------------------------- */
+.product-card {
+  position: relative;
+}
+
+/* Ensure badges stay above mockups and never overflow */
+.product-card span.absolute.top-3.left-3,
+.product-card span.badge {
+  z-index: 10 !important;
+  top: 0.5rem !important;
+  left: 0.5rem !important;
+  max-width: calc(100% - 2.75rem) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 10px !important;
+  padding: 0.2rem 0.5rem !important;
+}
+
+.product-card .wishlist-btn {
+  z-index: 10 !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  width: 1.85rem !important;
+  height: 1.85rem !important;
+}
+
+.product-card .product-mockup {
+  z-index: 1 !important;
+}
+
+/* 2-Column Mobile Grid (360px - 539px) */
 @media (min-width: 360px) and (max-width: 539px) {
   #product-grid, #shop-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.75rem !important;
+    gap: 0.625rem !important;
   }
 
   .product-card {
-    padding: 0.65rem !important;
+    padding: 0.625rem !important;
   }
 
   .product-card .h-52 {
-    height: 10.5rem !important;
+    height: 9.75rem !important;
+    padding: 0.35rem !important;
   }
 
-  .product-card .w-32 {
-    width: 6.25rem !important;
-    height: 8.75rem !important;
+  .product-card .product-mockup {
+    width: 5.75rem !important;
+    height: 8rem !important;
+    padding: 0.45rem 0.35rem !important;
+  }
+
+  .product-card .product-mockup p {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+  }
+
+  .product-card .product-mockup span.material-symbols-outlined {
+    font-size: 15px !important;
+  }
+
+  .product-card h3.font-headline-sm {
+    font-size: 0.9375rem !important;
+    line-height: 1.25rem !important;
+    min-height: 2.5rem !important;
+  }
+
+  .product-card .font-currency-lg {
+    font-size: 1.125rem !important;
+  }
+
+  .product-card .text-label-sm {
+    font-size: 11px !important;
+  }
+
+  .product-card .add-to-cart-btn {
+    padding: 0.55rem 0.5rem !important;
+    font-size: 0.8125rem !important;
   }
 }
 
-/* --------------------------------------------------------------------------
-   4. The 540px Breakpoint (Crucial Requirement: 3 Columns)
-   -------------------------------------------------------------------------- */
-@media (min-width: 540px) and (max-width: 1023px) {
+/* Ultra-Compact Mobile (< 360px) */
+@media (max-width: 359px) {
   #product-grid, #shop-product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1rem !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
   }
 
   .product-card {
@@ -81,18 +280,47 @@ html, body {
   }
 
   .product-card .h-52 {
-    height: 11.5rem !important;
+    height: 10.5rem !important;
   }
 
-  .product-card .w-32 {
-    width: 6.75rem !important;
-    height: 9.5rem !important;
+  .product-card .product-mockup {
+    width: 6.25rem !important;
+    height: 8.75rem !important;
+  }
+
+  .font-headline-display {
+    font-size: 24px !important;
+    line-height: 30px !important;
+  }
+
+  .font-headline-lg {
+    font-size: 20px !important;
+    line-height: 26px !important;
   }
 }
 
-/* --------------------------------------------------------------------------
-   5. Tablet & Desktop (>= 768px)
-   -------------------------------------------------------------------------- */
+/* 3-Column Mid-Tier Responsive Breakpoint (540px - 1023px) */
+@media (min-width: 540px) and (max-width: 1023px) {
+  #product-grid, #shop-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.875rem !important;
+  }
+
+  .product-card {
+    padding: 0.75rem !important;
+  }
+
+  .product-card .h-52 {
+    height: 10.75rem !important;
+  }
+
+  .product-card .product-mockup {
+    width: 6.25rem !important;
+    height: 8.75rem !important;
+  }
+}
+
+/* Tablet & Desktop (>= 768px) */
 @media (min-width: 768px) {
   #cart-drawer {
     max-width: 28rem !important;
@@ -100,7 +328,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   6. Shop Page Mobile Enhancements (< 768px)
+   5. Shop Page Mobile Enhancements (< 768px)
    -------------------------------------------------------------------------- */
 @media (max-width: 767px) {
   aside.w-full.md\:w-64 {
@@ -109,8 +337,10 @@ html, body {
 
   aside.w-full.md\:w-64 .bg-surface-container-lowest {
     padding: 0.875rem !important;
+    border-radius: 1rem !important;
   }
 
+  /* Horizontal scrolling category pills */
   aside.w-full.md\:w-64 .space-y-1\.5 {
     display: flex !important;
     flex-direction: row !important;
@@ -118,6 +348,11 @@ html, body {
     gap: 0.5rem !important;
     padding-bottom: 0.35rem !important;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  aside.w-full.md\:w-64 .space-y-1\.5::-webkit-scrollbar {
+    display: none;
   }
 
   aside.w-full.md\:w-64 .shop-cat-btn {
@@ -132,24 +367,26 @@ html, body {
     margin: 0.75rem 0 !important;
   }
 
-  #shop-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.75rem !important;
+  /* Catalog header responsive alignment */
+  section.flex-1 > .flex.items-center.justify-between {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1rem !important;
   }
-}
 
-@media (max-width: 350px) {
-  #shop-product-grid, #product-grid {
-    grid-template-columns: 1fr !important;
+  section.flex-1 > .flex.items-center.justify-between h1 {
+    font-size: 1.35rem !important;
+    line-height: 1.75rem !important;
   }
 }
 
 /* --------------------------------------------------------------------------
-   7. Touch Target & Action Button Accessibility
+   6. Touch Target & Accessibility Compliance
    -------------------------------------------------------------------------- */
 button, a.nav-link, .category-btn, .wishlist-btn {
-  min-height: 36px;
-  min-width: 36px;
+  min-height: 38px;
+  min-width: 38px;
 }
 
 @media (max-width: 768px) {
@@ -157,9 +394,34 @@ button, a.nav-link, .category-btn, .wishlist-btn {
     min-height: 44px !important;
   }
 
-  #cart-drawer {
-    max-width: 100vw !important;
-    width: 100% !important;
+  /* Prevent iOS Safari 16px auto-zoom */
+  .form-input,
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Form container padding */
+  #checkout-form,
+  .form-container,
+  aside.lg\:col-span-5 {
+    padding: 1.125rem !important;
+    border-radius: 1rem !important;
   }
 }
 
+/* --------------------------------------------------------------------------
+   7. Horizontal Scrollbars Utility
+   -------------------------------------------------------------------------- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch;
+}
